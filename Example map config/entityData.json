@@ -1,0 +1,29 @@
+{
+	"spriteMaps" : {
+		"notreal" : {
+			"path" : "sprites/not_an_actual_sprite.png",
+			"cellSizeX" : 8,
+			"cellSizeY" : 8
+		}
+	},
+	"entityTypes" : {
+		"robot" : {
+			"traits" : {
+				"hasSprites" : {
+					"startsAs" : "standing",
+					"sprites" : {
+						"standing" : {
+							"spriteMap" : "notreal",
+							"cellX" : 1,
+							"cellY" : 113
+						}
+					}
+				},
+				"isPlayerControllable" : {},
+				"canMove" : {
+					"speed" : 2.0
+				}
+			}
+		}
+	}
+}

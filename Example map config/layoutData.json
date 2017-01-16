@@ -1,0 +1,14 @@
+{
+	"entities" : [
+		{
+			"entityType" : "robot",
+			"cellX" : 1,
+			"cellY" : 1
+		},
+		{
+			"entityType" : "robot",
+			"cellX" : 2,
+			"cellY" : 3
+		}
+	]
+}
