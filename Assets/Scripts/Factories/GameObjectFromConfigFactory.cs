@@ -1,35 +1,33 @@
 ﻿using System;
-using Svelto.ES;
-using Svelto.Factories;
 using System.Collections.Generic;
 using UnityEngine;
-using MapLoader;
+using Svelto.ES;
+using Svelto.Factories;
+using DataTypes.Config.Descriptors;
+using DataTypes.Traits;
 using EntityDescriptors;
 
 namespace Factories {
     public class GameObjectFromConfigFactory : IGameObjectFactory {
 
-        EntitiesData EntitiesData;
-        Dictionary<string, GameObject[]> prefabs;
+        EntityTypeDescriptorCollection _entityTypes;
+        Dictionary<string, GameObject[]> _prefabs;
 
-        public GameObjectFromConfigFactory (EntitiesData entitiesData) {
-            EntitiesData = entitiesData;
-            prefabs = new Dictionary<string, GameObject[]>();
+        public GameObjectFromConfigFactory (EntityTypeDescriptorCollection entityTypes) {
+            _entityTypes = entityTypes;
+            _prefabs = new Dictionary<string, GameObject[]>();
         }
 
         public GameObject Build (string type) {
             GameObject entity = new GameObject(type);
             entity.AddComponent<DynamicEntityDescriptorHolder>();
-            EntityData entityData = EntitiesData.entities[type];
-            foreach (KeyValuePair<string, ComponentData> component in entityData.traits) {
-                Type implementerFactoryType = Type.GetType("Factories.ImplementerFactories." + component.Key + "ImplementerFactory", true, true);
-                entity = (GameObject)implementerFactoryType.GetMethod("BuildAndAttach").Invoke(null, new object[] { entity, component.Value.attributes });
+            EntityTypeDescriptor entityType = _entityTypes[type];
+            foreach (Trait trait in entityType.traits) {
+                Debug.Log(trait);
+                //Type implementerFactoryType = Type.GetType("Factories.ImplementerFactories." + component.Key + "ImplementerFactory", true, true);
+                //entity = (GameObject)implementerFactoryType.GetMethod("BuildAndAttach").Invoke(null, new object[] { entity, component.Value.attributes });
             }
             return entity;
-        }
-
-        public IEnumerable<string> EnumerateAllEntities () {
-            return EntitiesData.entities.Keys;
         }
 
         public GameObject Build (GameObject prefab) {
@@ -42,7 +40,7 @@ namespace Factories {
 
             objects[0] = prefab; objects[1] = parent;
 
-            prefabs.Add(type, objects);
+            _prefabs.Add(type, objects);
         }
     }
 }

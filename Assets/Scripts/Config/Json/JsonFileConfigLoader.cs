@@ -32,22 +32,20 @@ namespace Config.Json
             _mapPath = BuildMapPathFromMapName(mapName);
         }
 
-        WorldConfig Load ()
+        void Load ()
         {
             if (!Directory.Exists(_mapPath))
             {
                 throw new ConfigLoadException("Map directory " + _mapPath + " not found");
             }
-            WorldConfig worldConfig = new WorldConfig();
+            _worldConfig = new WorldConfig();
 
             JObject entityFileJson = LoadJsonFile(Path.Combine(_mapPath, "entityData.json"));
             JObject layoutFileJson = LoadJsonFile(Path.Combine(_mapPath, "layoutData.json"));
 
-            worldConfig.spriteMaps = BuildSpriteMapsFromEntityFileJson(entityFileJson);
-            worldConfig.entityTypes = BuildEntityTypesFromEntityFileJson(entityFileJson);
-            worldConfig.entities = BuildEntitiesFromLayoutFileJson(layoutFileJson);
-
-            return worldConfig;
+            _worldConfig.spriteMaps = BuildSpriteMapsFromEntityFileJson(entityFileJson);
+            _worldConfig.entityTypes = BuildEntityTypesFromEntityFileJson(entityFileJson);
+            _worldConfig.entities = BuildEntitiesFromLayoutFileJson(layoutFileJson);
         }
 
         SpriteMapDescriptorCollection BuildSpriteMapsFromEntityFileJson (JObject entityObject)

@@ -7,7 +7,6 @@ using Config.Json;
 using Factories;
 
 using Engines.Test;
-using Engines.Maps.Generators;
 
 /*
  * Main is the Application Composition Root.
@@ -33,10 +32,12 @@ public class Main : ICompositionRoot {
         JsonFileConfigLoader configLoader = new JsonFileConfigLoader("mapTest");
         _config = configLoader.WorldConfig;
  
-        //GameObjectFromConfigFactory configFactory = new GameObjectFromConfigFactory(_config.entities);
+        GameObjectFromConfigFactory configFactory = new GameObjectFromConfigFactory(_config.entityTypes);
 
-        //AddEngine(new BuildAllEntitiesEngine(configFactory, _entityFactory, contextInitialized));
         //AddEngine(new CounterIncrementEngine());
+
+        // Build starting entities.
+        configFactory.Build("robot");
     }
 
     /**
