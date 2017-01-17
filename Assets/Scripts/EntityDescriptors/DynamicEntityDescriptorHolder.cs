@@ -1,7 +1,5 @@
 ﻿using Svelto.ES;
 using System;
-using Nodes;
-using Components;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
@@ -15,36 +13,37 @@ namespace EntityDescriptors
      */
     class DynamicEntityDescriptor : EntityDescriptor
     {
-        string[] _componentIdentifiers;
-
         /**
-         * Keep a list of all the types under the Nodes namespace, but only build it once.
+         * Keep a list of all the Component types used by all the Nodes, stored by Node, but only build it once (as it shouldn't change).
          */
-        static Type[] _nodes;
-        public static Type[] Nodes {
+        static Dictionary<Type, Type[]> _nodeComponents;
+        public static Dictionary<Type, Type[]> NodeComponents {
             get {
-                if (_nodes == null)
+                if (_nodeComponents == null)
                 {
-                    _nodes = Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(NodeWithIDAndRequiredComponents))).ToArray();
+                    _nodeComponents = new Dictionary<Type, Type[]>();
+                    foreach (Type nodeType in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(NodeWithID))))
+                    {
+                        _nodeComponents.Add(nodeType, nodeType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Select(t => t.FieldType).ToArray());
+                    }
                 }
-                return _nodes;
+                return _nodeComponents;
             }
         }
 
-        public static INodeBuilder[] NodesToBuild (IIdentifiedComponent[] components)
+        public static INodeBuilder[] NodesToBuild (IComponent[] components)
         {
-            string[] componentIdentifiers = components.Select(component => component.ComponentIdentifier).ToArray();
-            List<INodeBuilder> nodeBuilders = new List<INodeBuilder>();
-
-            // The type of a NodeBuilder with no generic set. We construct the rest with reflection.
+            // The type of a NodeBuilder with no generic set. We use this to build typed NodeBuilders via reflection on demand.
             Type emptyNodeBuilderType = typeof(NodeBuilder<>);
 
-            foreach (Type nodeType in Nodes)
+            List<INodeBuilder> nodeBuilders = new List<INodeBuilder>();
+            Type[] componentTypes = components.Select(c => c.GetType()).ToArray();
+            foreach (KeyValuePair<Type, Type[]> nodeRequirementsPair in NodeComponents)
             {
-                if (NodeRequirementsFulfilled(nodeType, componentIdentifiers))
+                if (NodeRequirementsFulfilled(nodeRequirementsPair.Value, componentTypes))
                 {
                     // Use a bunch of reflection to construct a NodeBuilder with the correct node type.
-                    Type[] substitutedTypeParameters = { nodeType };
+                    Type[] substitutedTypeParameters = { nodeRequirementsPair.Key };
                     Type constructedNodeBuilderType = emptyNodeBuilderType.MakeGenericType(substitutedTypeParameters);
                     var nodeBuilder = (INodeBuilder)Activator.CreateInstance(constructedNodeBuilderType);
                     nodeBuilders.Add(nodeBuilder);
@@ -54,18 +53,17 @@ namespace EntityDescriptors
             return nodeBuilders.ToArray();
         }
 
-        private static bool NodeRequirementsFulfilled (Type nodeType, string[] componentIdentifiers)
+        private static bool NodeRequirementsFulfilled (Type[] nodeRequirements, Type[] components)
         {
-            string[] nodeRequiredComponents = (string[])nodeType.GetProperty("RequiredComponentIdentifiers").GetValue(null, null);
             // This is a weird one-liner, but it basically checks if nodeRequiredComponents array is a subset of the _componentIdentifiers array.
-            return (!nodeRequiredComponents.Except(componentIdentifiers).Any());
+            return (!nodeRequirements.Except(components).Any());
         }
 
         /**
          * Note that we import the _nodesToBuild list from the static call NodesToBuild(), which is the only way I could find to get
          * the superclass to receive the list correctly.
          */
-        public DynamicEntityDescriptor (IIdentifiedComponent[] componentsImplementor) : base(NodesToBuild(componentsImplementor), componentsImplementor) { }
+        public DynamicEntityDescriptor (IComponent[] componentsImplementor) : base(NodesToBuild(componentsImplementor), componentsImplementor) { }
     }
 
     [DisallowMultipleComponent]
@@ -73,7 +71,7 @@ namespace EntityDescriptors
     {
         EntityDescriptor IEntityDescriptorHolder.BuildDescriptorType ()
         {
-            return new DynamicEntityDescriptor(GetComponentsInChildren<IIdentifiedComponent>());
+            return new DynamicEntityDescriptor(GetComponentsInChildren<IComponent>());
         }
     }
 }
