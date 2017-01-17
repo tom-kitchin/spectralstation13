@@ -2,14 +2,14 @@
 using UnityEngine;
 using DataTypes.Traits;
 
-namespace DataTypes.Config.Descriptors
+namespace DataTypes.Config
 {
-    public class EntityTypeDescriptor
+    public class EntityTypeData
     {
         public List<Trait> traits;
     }
 
-    public class EntityDescriptor
+    public class EntityData
     {
         public string entityType;
         public Vector2 cellCoord;
@@ -21,16 +21,7 @@ namespace DataTypes.Config.Descriptors
         public int subCellY { set { subCellCoord.y = value; } }
     }
 
-    public class SpriteMapDescriptor
-    {
-        public string path;
-        public Vector2 cellSize;
-
-        public int cellSizeX { set { cellSize.x = value; } }
-        public int cellSizeY { set { cellSize.y = value; } }
-    }
-
-    public class SpriteDescriptor
+    public class SpriteData
     {
         public string spriteMap;
         public Vector2 cellCoord;
@@ -39,7 +30,6 @@ namespace DataTypes.Config.Descriptors
         public int cellY { set { cellCoord.y = value; } }
     }
 
-    public class EntityDescriptorCollection : List<EntityDescriptor> { }
-    public class EntityTypeDescriptorCollection : Dictionary<string, EntityTypeDescriptor> { }
-    public class SpriteMapDescriptorCollection : Dictionary<string, SpriteMapDescriptor> { }
+    public class EntityDataList : List<EntityData> { }
+    public class EntityTypeDataDictionary : Dictionary<string, EntityTypeData> { }
 }

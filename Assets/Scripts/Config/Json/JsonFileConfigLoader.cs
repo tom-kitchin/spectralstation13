@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using DataTypes;
 using DataTypes.Config;
 using DataTypes.Traits;
-using DataTypes.Config.Descriptors;
 
 namespace Config.Json
 {
@@ -48,24 +48,36 @@ namespace Config.Json
             _worldConfig.entities = BuildEntitiesFromLayoutFileJson(layoutFileJson);
         }
 
-        SpriteMapDescriptorCollection BuildSpriteMapsFromEntityFileJson (JObject entityObject)
+        SpriteMapDictionary BuildSpriteMapsFromEntityFileJson (JObject entityObject)
         {
-            SpriteMapDescriptorCollection spriteMapCollection = new SpriteMapDescriptorCollection();
+            SpriteMapDictionary spriteMapDictionary = new SpriteMapDictionary();
             foreach (JProperty spriteMapToken in entityObject.GetValue("spriteMaps").Children())
             {
-                spriteMapCollection.Add(spriteMapToken.Name, spriteMapToken.Value.ToObject<SpriteMapDescriptor>());
+                SpriteMap spriteMap = new SpriteMap();
+                string texturePath = Path.Combine(_mapPath, spriteMapToken.Value["path"].Value<string>());
+                spriteMap.texture = LoadTextureFromPath(texturePath);
+                spriteMap.cellSize = new Vector2(spriteMapToken.Value["cellSizeX"].Value<int>(), spriteMapToken.Value["cellSizeY"].Value<int>());
+                spriteMapDictionary.Add(spriteMapToken.Name, spriteMap);
             }
-            return spriteMapCollection;
+            return spriteMapDictionary;
         }
 
-
-        EntityTypeDescriptorCollection BuildEntityTypesFromEntityFileJson (JObject entityObject)
+        Texture2D LoadTextureFromPath(string path)
         {
-            EntityTypeDescriptorCollection entityTypeCollection = new EntityTypeDescriptorCollection();
+            byte[] fileData = File.ReadAllBytes(path);
+            Texture2D texture = new Texture2D(2, 2);
+            texture.filterMode = FilterMode.Point;
+            texture.LoadImage(fileData);
+            return texture;
+        }
+
+        EntityTypeDataDictionary BuildEntityTypesFromEntityFileJson (JObject entityObject)
+        {
+            EntityTypeDataDictionary EntityTypeDataDictionary = new EntityTypeDataDictionary();
             foreach (JProperty entityTypeToken in entityObject.GetValue("entityTypes").Children())
             {
                 JToken entityTraitsToken = entityTypeToken.Value["traits"];
-                EntityTypeDescriptor entityType = new EntityTypeDescriptor() { traits = new List<Trait>() };
+                EntityTypeData entityType = new EntityTypeData() { traits = new List<Trait>() };
                 foreach (JProperty traitToken in entityTraitsToken.Children())
                 {
                     Type traitDescriptorType = Type.GetType("DataTypes.Traits." + traitToken.Name, true, true);
@@ -78,18 +90,18 @@ namespace Config.Json
                         entityType.traits.Add((Trait)traitToken.Value.ToObject(traitDescriptorType));
                     }
                 }
-                entityTypeCollection.Add(entityTypeToken.Name, entityType);
+                EntityTypeDataDictionary.Add(entityTypeToken.Name, entityType);
             }
-            return entityTypeCollection;
+            return EntityTypeDataDictionary;
         }
 
-        EntityDescriptorCollection BuildEntitiesFromLayoutFileJson (JObject layoutObject)
+        EntityDataList BuildEntitiesFromLayoutFileJson (JObject layoutObject)
         {
-            EntityDescriptorCollection entityCollection = new EntityDescriptorCollection();
+            EntityDataList entityCollection = new EntityDataList();
 
             foreach (JToken entityToken in layoutObject.GetValue("entities").Children())
             {
-                entityCollection.Add(entityToken.ToObject<EntityDescriptor>());
+                entityCollection.Add(entityToken.ToObject<EntityData>());
             }
             return entityCollection;
         }
@@ -117,110 +129,4 @@ namespace Config.Json
             return namedMapPath;
         }
     }
-
-    class TraitJsonRepresentationCollection
-    {
-        List<Trait> traits;
-    }
-
-    //class EntityFile
-    //{
-    //    public Dictionary<string, SpriteMapJsonRepresentation> spriteMaps;
-    //    public Dictionary<string, EntityTypeJsonRepresentation> entityTypes;
-    //}
-
-    //class LayoutFile
-    //{
-    //    public List<EntityJsonRepresentation> entities;
-    //}
-
-    //class SpriteMapJsonRepresentation
-    //{
-    //    public string path;
-    //    public int cellSizeX;
-    //    public int cellSizeY;
-
-    //    public SpriteMapDescriptor ToSpriteMapDescriptor ()
-    //    {
-    //        return new SpriteMapDescriptor() {
-    //            path = path,
-    //            cellSize = new Vector2(cellSizeX, cellSizeY)
-    //        };
-    //    }
-    //}
-
-    //class EntityTypeJsonRepresentation
-    //{
-    //    public Dictionary<string, object> traits;
-
-    //    public EntityTypeDescriptor ToEntityTypeDescriptor ()
-    //    {
-    //        EntityTypeDescriptor entityType = new EntityTypeDescriptor() {
-    //            traits = new List<DataTypes.Traits.Trait>()
-    //        };
-
-    //        foreach (KeyValuePair<string, Dictionary<string, object>> traitPair in traits)
-    //        {
-    //            Type traitDescriptorType = Type.GetType("DataTypes.Traits." + traitPair.Key, true, true);
-    //            Trait trait = (Trait)Activator.CreateInstance(traitDescriptorType);
-    //            trait.name = traitPair.Key;
-    //            trait.unprocessedAttributes = traitPair.Value;
-    //            traitDescriptorType.GetMethod("ProcessAttributes").Invoke(trait, new object[] { })
-
-    //            traits.Add((Trait)implementerFactoryType.GetMethod("BuildAndAttach").Invoke(null, new object[] { entity, component.Value.attributes });
-    //        }
-    //    }
-    //}
-
-    //class EntityJsonRepresentation
-    //{
-    //    public string entityType;
-    //    public int cellX;
-    //    public int cellY;
-
-    //    public EntityDescriptor ToEntityDescriptor ()
-    //    {
-    //        return new EntityDescriptor() {
-    //            entityType = entityType,
-    //            cellCoord = new Vector2(cellX, cellY)
-    //        };
-    //    }
-    //}
-
-    //class EntitiesJsonRepresentation {
-    //    Dictionary<string, Dictionary<string, EntityJsonRepresentation>> categories;
-
-    //    public EntitiesData ToEntitiesData() {
-    //        EntitiesData ed = new EntitiesData();
-    //        foreach (KeyValuePair<string, Dictionary<string, EntityJsonRepresentation>> categoryPair in categories) {
-    //            foreach(KeyValuePair<string, EntityJsonRepresentation> entityPair in categoryPair.Value) {
-    //                ed.entities.Add(entityPair.Key, entityPair.Value.ToEntityData());
-    //            }
-    //        }
-    //        return ed;
-    //    }
-    //}
-
-    //class EntityJsonRepresentation {
-    //    public Dictionary<string, ComponentJsonRepresentation> traits;
-
-    //    public EntityData ToEntityData () {
-    //        EntityData ed = new EntityData();
-    //        ed.traits = new Dictionary<string, ComponentData>();
-    //        foreach(KeyValuePair<string, ComponentJsonRepresentation> componentPair in traits) {
-    //            ed.traits.Add(componentPair.Key, componentPair.Value.ToComponentData());
-    //        }
-    //        return ed;
-    //    }
-    //}
-
-    //class ComponentJsonRepresentation {
-    //    public Dictionary<string, object> attributes;
-
-    //    public ComponentData ToComponentData() {
-    //        ComponentData cd = new ComponentData();
-    //        cd.attributes = attributes;
-    //        return cd;
-    //    }
-    //}
 }

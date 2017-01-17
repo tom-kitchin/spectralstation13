@@ -1,11 +1,12 @@
-﻿using DataTypes.Config.Descriptors;
+﻿using DataTypes;
+using DataTypes.Config;
 
 namespace Config
 {
     public class WorldConfig
     {
-        public SpriteMapDescriptorCollection spriteMaps;
-        public EntityTypeDescriptorCollection entityTypes;
-        public EntityDescriptorCollection entities;
+        public SpriteMapDictionary spriteMaps;
+        public EntityTypeDataDictionary entityTypes;
+        public EntityDataList entities;
     }
 }

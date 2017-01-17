@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using DataTypes.Config.Descriptors;
+using DataTypes.Config;
 using DataTypes.Traits;
 
 namespace Config.Json.TraitDescriptorBuilders
@@ -15,10 +15,10 @@ namespace Config.Json.TraitDescriptorBuilders
             HasSprites hasSpritesTrait = attributesJson.ToObject<HasSprites>();
 
             // Add the sprites manually, this is the bit the json parser otherwise chokes on.
-            hasSpritesTrait.sprites = new Dictionary<string, SpriteDescriptor>();
+            hasSpritesTrait.sprites = new Dictionary<string, SpriteData>();
             foreach (JProperty spriteToken in spritesToken.Children())
             {
-                hasSpritesTrait.sprites.Add(spriteToken.Name, spriteToken.Value.ToObject<SpriteDescriptor>());
+                hasSpritesTrait.sprites.Add(spriteToken.Name, spriteToken.Value.ToObject<SpriteData>());
             }
 
             return hasSpritesTrait;
