@@ -7,7 +7,8 @@ namespace Config.Json.TraitDescriptorBuilders
 {
     public static class HasSpritesBuilder
     {
-        public static HasSprites Build (JToken attributesJson) {
+        public static HasSprites Build (JToken attributesJson)
+        {
             // Remove the sprites token and save it to add afterwards, this lets us just feed the remaining attributes into the ToObject call.
             JToken spritesToken = attributesJson["sprites"];
             spritesToken.Parent.Remove();

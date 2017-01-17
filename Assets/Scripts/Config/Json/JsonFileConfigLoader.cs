@@ -12,7 +12,6 @@ namespace Config.Json
 {
     public class JsonFileConfigLoader : IConfigLoader
     {
-
         string _mapPath;
         WorldConfig _worldConfig;
 
@@ -62,7 +61,7 @@ namespace Config.Json
             return spriteMapDictionary;
         }
 
-        Texture2D LoadTextureFromPath(string path)
+        Texture2D LoadTextureFromPath (string path)
         {
             byte[] fileData = File.ReadAllBytes(path);
             Texture2D texture = new Texture2D(2, 2);

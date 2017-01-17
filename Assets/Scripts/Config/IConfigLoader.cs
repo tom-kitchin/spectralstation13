@@ -7,7 +7,7 @@ namespace Config
         string MapPath { get; }
         WorldConfig WorldConfig { get; }
     }
-    
+
     public class ConfigLoadException : Exception
     {
         public ConfigLoadException () { }
