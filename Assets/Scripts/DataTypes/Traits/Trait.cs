@@ -1,6 +1,10 @@
-﻿namespace DataTypes.Traits
+﻿using UnityEngine;
+using Config;
+
+namespace DataTypes.Traits
 {
-    public class Trait
+    public abstract class Trait
     {
+        public abstract void BuildAndAttach (ref GameObject go, ref WorldConfig config);
     }
 }

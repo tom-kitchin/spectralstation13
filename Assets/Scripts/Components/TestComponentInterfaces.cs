@@ -1,6 +1,4 @@
-﻿using Svelto.ES;
-
-namespace Components.Test
+﻿namespace Components.Test
 {
     public interface ITestComponent : IIdentifiedComponent
     {

@@ -32,7 +32,7 @@ public class Main : ICompositionRoot {
         JsonFileConfigLoader configLoader = new JsonFileConfigLoader("mapTest");
         _config = configLoader.WorldConfig;
  
-        GameObjectFromConfigFactory configFactory = new GameObjectFromConfigFactory(_config.entityTypes);
+        GameObjectFromConfigFactory configFactory = new GameObjectFromConfigFactory(_config);
 
         //AddEngine(new CounterIncrementEngine());
 
