@@ -7,5 +7,9 @@ namespace Config
         public SpriteMapDictionary spriteMaps;
         public EntityTypeDataDictionary entityTypes;
         public EntityDataList entities;
+
+        public static WorldConfig Empty {
+            get { return new WorldConfig(); }
+        }
     }
 }

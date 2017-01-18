@@ -1,12 +1,27 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using Traits;
+using System;
 
 namespace Config.Datatypes
 {
-    public class EntityTypeData
+    public class EntityTypeData : INetworkSpawnable
     {
         public List<Trait> traits;
+        public NetworkHash128 assetId { get { return _assetId; } }
+
+        public EntityTypeData ()
+        {
+            Debug.Log("Generating asset ID");
+            // Try and guarantee asset ID uniqueness.
+            _assetIdCounter++;
+            // Converts an integer to hex representation, which is what the NetworkHash128 knows how to read.
+            _assetId = NetworkHash128.Parse(_assetIdCounter.ToString("x8"));
+            Debug.Log(_assetId);
+        }
+        static int _assetIdCounter = 1;
+        NetworkHash128 _assetId;
     }
 
     public class EntityData

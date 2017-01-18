@@ -11,9 +11,9 @@ using Engines.Motion;
  * Main is the Application Composition Root.
  * Composition Root is the place where the framework can be initialised.
  */
-public class Main : ICompositionRoot
+public class Client : ICompositionRoot
 {
-    public Main ()
+    public Client ()
     {
         SetupEnginesAndComponents();
     }
@@ -30,14 +30,15 @@ public class Main : ICompositionRoot
         // Load entity and map data.
         JsonFileConfigLoader configLoader = new JsonFileConfigLoader("mapTest");
         _config = configLoader.WorldConfig;
-        GameObjectFromConfigFactory configFactory = new GameObjectFromConfigFactory(_config);
+        NetworkGameObjectFromConfigFactory factory = new NetworkGameObjectFromConfigFactory(_config);
+        ConfigFactorySpawnManager spawnManager = new ConfigFactorySpawnManager(factory, _entityFactory, _config);
 
         // Start engines.
         AddEngine(new MovementEngine());
 
-        // Build initial entities.
-        GameObject testRobot = configFactory.Build("robot");
-        _entityFactory.BuildEntity(testRobot.GetInstanceID(), testRobot.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+        // Test connection stuff
+        GameObject go = new GameObject("ServerManager");
+        new Traits.Networking.ServerManagerTrait().BuildAndAttach(ref go, ref _config);
     }
 
     /**
@@ -80,4 +81,4 @@ public class Main : ICompositionRoot
  * All the monobehaviours present in the scene statically that need
  * to notify the Context, must belong to GameObjects children of UnityContext.
  */
-public class MainContext : UnityContext<Main> { }
+public class ClientContext : UnityContext<Client> { }

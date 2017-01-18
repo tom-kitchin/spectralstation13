@@ -10,8 +10,8 @@ namespace Factories
 {
     public class GameObjectFromConfigFactory : IGameObjectFactory
     {
-        WorldConfig _config;
-        Dictionary<string, GameObject[]> _prefabs;
+        protected WorldConfig _config;
+        protected Dictionary<string, GameObject[]> _prefabs;
 
         public GameObjectFromConfigFactory (WorldConfig config)
         {
