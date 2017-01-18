@@ -24,20 +24,20 @@ namespace EntityDescriptors
                     _nodeComponents = new Dictionary<Type, Type[]>();
                     foreach (Type nodeType in Assembly.GetExecutingAssembly().GetTypes().Where(t => t.IsSubclassOf(typeof(NodeWithID))))
                     {
-                        _nodeComponents.Add(nodeType, nodeType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Select(t => t.FieldType).ToArray());
+                        _nodeComponents.Add(nodeType, nodeType.GetFields().Select(t => t.FieldType).ToArray());
                     }
                 }
                 return _nodeComponents;
             }
         }
 
-        public static INodeBuilder[] NodesToBuild (IComponent[] components)
+        public static INodeBuilder[] NodesToBuild (IComponent[] implementers)
         {
             // The type of a NodeBuilder with no generic set. We use this to build typed NodeBuilders via reflection on demand.
             Type emptyNodeBuilderType = typeof(NodeBuilder<>);
 
             List<INodeBuilder> nodeBuilders = new List<INodeBuilder>();
-            Type[] componentTypes = components.Select(c => c.GetType()).ToArray();
+            Type[] componentTypes = GetImplementedComponentsListFromImplementers(implementers);
             foreach (KeyValuePair<Type, Type[]> nodeRequirementsPair in NodeComponents)
             {
                 if (NodeRequirementsFulfilled(nodeRequirementsPair.Value, componentTypes))
@@ -51,6 +51,23 @@ namespace EntityDescriptors
             }
 
             return nodeBuilders.ToArray();
+        }
+
+        private static Type[] GetImplementedComponentsListFromImplementers(IComponent[] implementers)
+        {
+            HashSet<Type> interfaces = new HashSet<Type>();
+            foreach (IComponent implementer in implementers)
+            {
+                foreach (Type interfaceType in implementer.GetType().GetInterfaces())
+                {
+                    if (typeof(IComponent).IsAssignableFrom(interfaceType))
+                    {
+                        interfaces.Add(interfaceType);
+                    }
+                }
+            }
+            interfaces.Remove(typeof(IComponent));
+            return interfaces.ToArray();
         }
 
         private static bool NodeRequirementsFulfilled (Type[] nodeRequirements, Type[] components)

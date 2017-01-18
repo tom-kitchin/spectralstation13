@@ -5,6 +5,7 @@ using UnityEngine;
 using Config;
 using Config.Json;
 using Factories;
+using Engines.Motion;
 
 /*
  * Main is the Application Composition Root.
@@ -32,9 +33,11 @@ public class Main : ICompositionRoot
         GameObjectFromConfigFactory configFactory = new GameObjectFromConfigFactory(_config);
 
         // Start engines.
+        AddEngine(new MovementEngine());
 
         // Build initial entities.
-        configFactory.Build("robot");
+        GameObject testRobot = configFactory.Build("robot");
+        _entityFactory.BuildEntity(testRobot.GetInstanceID(), testRobot.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
     }
 
     /**

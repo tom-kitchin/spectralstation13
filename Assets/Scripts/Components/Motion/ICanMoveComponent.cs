@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using Svelto.ES;
 
 namespace Components.Motion
 {
-    public interface ICanMoveComponent : IIdentifiedComponent
+    public interface ICanMoveComponent : IComponent
     {
         float speed { get; }
     }

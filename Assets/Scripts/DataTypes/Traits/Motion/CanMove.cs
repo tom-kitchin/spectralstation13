@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using Config;
 
 namespace DataTypes.Traits
@@ -10,7 +9,9 @@ namespace DataTypes.Traits
 
         public override void BuildAndAttach (ref GameObject go, ref WorldConfig config)
         {
-            throw new NotImplementedException("Sorry, no BuildAndAttach for CanMove yet");
+            var canMoveImplementer = go.AddComponent<Implementers.Motion.CanMove>();
+            canMoveImplementer.speed = speed;
+            canMoveImplementer._transform = go.transform;
         }
     }
 }
