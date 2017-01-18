@@ -2,8 +2,8 @@
 using UnityEngine;
 using Svelto.Factories;
 using Config;
-using DataTypes.Config;
-using DataTypes.Traits;
+using Config.Datatypes;
+using Traits;
 using EntityDescriptors;
 
 namespace Factories

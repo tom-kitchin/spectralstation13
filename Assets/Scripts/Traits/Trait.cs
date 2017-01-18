@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Config;
 
-namespace DataTypes.Traits
+namespace Traits
 {
     public abstract class Trait
     {

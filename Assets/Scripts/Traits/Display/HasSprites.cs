@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Config;
-using DataTypes.Config;
+using Config.Datatypes;
 
-namespace DataTypes.Traits
+namespace Traits
 {
     public class HasSprites : Trait
     {

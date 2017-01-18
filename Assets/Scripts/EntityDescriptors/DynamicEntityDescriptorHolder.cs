@@ -53,7 +53,7 @@ namespace EntityDescriptors
             return nodeBuilders.ToArray();
         }
 
-        private static Type[] GetImplementedComponentsListFromImplementers(IComponent[] implementers)
+        private static Type[] GetImplementedComponentsListFromImplementers (IComponent[] implementers)
         {
             HashSet<Type> interfaces = new HashSet<Type>();
             foreach (IComponent implementer in implementers)

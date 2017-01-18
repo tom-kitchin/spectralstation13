@@ -1,5 +1,4 @@
-﻿using DataTypes;
-using DataTypes.Config;
+﻿using Config.Datatypes;
 
 namespace Config
 {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using DataTypes.Config;
-using DataTypes.Traits;
+using Config.Datatypes;
+using Traits;
 
 namespace Config.Json.TraitDescriptorBuilders
 {

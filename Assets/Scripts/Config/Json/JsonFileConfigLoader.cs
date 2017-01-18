@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using DataTypes;
-using DataTypes.Config;
-using DataTypes.Traits;
+using Config.Datatypes;
+using Traits;
 
 namespace Config.Json
 {
@@ -79,7 +78,7 @@ namespace Config.Json
                 EntityTypeData entityType = new EntityTypeData() { traits = new List<Trait>() };
                 foreach (JProperty traitToken in entityTraitsToken.Children())
                 {
-                    Type traitDescriptorType = Type.GetType("DataTypes.Traits." + traitToken.Name, true, true);
+                    Type traitDescriptorType = Type.GetType("Traits." + traitToken.Name, true, true);
                     Type traitDescriptorConstructorType = Type.GetType("Config.Json.TraitDescriptorBuilders." + traitToken.Name + "Builder", false, true);
                     if (traitDescriptorConstructorType != null)
                     {
