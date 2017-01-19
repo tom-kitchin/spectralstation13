@@ -1,9 +1,9 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.Networking.NetworkSystem;
 using Svelto.ES;
 using Svelto.Factories;
+using Services.Networking;
 using Nodes.Networking;
 using Config;
 
@@ -55,105 +55,25 @@ namespace Engines.Networking
             }
         }
 
-        /**
-         * Let's get this party started.
-         */
         void StartServer ()
         {
-            ConfigureServer();
-            if (!NetworkServer.Listen(networkPort))
-            {
-                Debug.LogError("Failed to start server on port " + networkPort.ToString());
-                return;
-            }
-            RegisterServerMessages();
-            Debug.Log("Started server on port " + networkPort.ToString());
+            SpectreServer.onCreatePlayer += ServerCreatePlayer;
+            SpectreServer.StartServer();
         }
 
-        void ConfigureServer ()
+        GameObject ServerCreatePlayer (NetworkConnection conn, UnityEngine.Networking.NetworkSystem.AddPlayerMessage message)
         {
-            Application.runInBackground = true;
-            ConnectionConfig config = new ConnectionConfig();
-            config.Channels.Clear();
-            config.AddChannel(QosType.ReliableSequenced);
-            config.AddChannel(QosType.Unreliable);
-            NetworkServer.Configure(config, maxConnections);
-        }
+            Debug.Log("ServerEngine:ServerCreatePlayer");
 
-        void RegisterServerMessages ()
-        {
-            NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnect);
-            NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnect);
-            NetworkServer.RegisterHandler(MsgType.Ready, OnServerReady);
-            NetworkServer.RegisterHandler(MsgType.AddPlayer, OnServerAddPlayer);
-            NetworkServer.RegisterHandler(MsgType.RemovePlayer, OnServerRemovePlayer);
-            NetworkServer.RegisterHandler(MsgType.Error, OnServerError);
-        }
-
-        /* SERVER MESSAGE HANDLERS */
-
-        void OnServerConnect (NetworkMessage netMsg)
-        {
-            Debug.Log("ServerEngine:OnServerConnect");
-        }
-
-        void OnServerDisconnect (NetworkMessage netMsg)
-        {
-            Debug.Log("ServerEngine:OnServerDisconnect");
-
-            NetworkServer.DestroyPlayersForConnection(netMsg.conn);
-        }
-
-        void OnServerReady (NetworkMessage netMsg)
-        {
-            Debug.Log("ServerEngine:OnServerReady");
-
-            NetworkServer.SetClientReady(netMsg.conn);
-        }
-
-        void OnServerAddPlayer (NetworkMessage netMsg)
-        {
-            Debug.Log("ServerEngine:OnServerAddPlayer");
-
-            NetworkConnection conn = netMsg.conn;
-            AddPlayerMessage message = netMsg.ReadMessage<AddPlayerMessage>();
-            short playerControllerId = message.playerControllerId;
-            if (playerControllerId < conn.playerControllers.Count && conn.playerControllers[playerControllerId].IsValid && conn.playerControllers[playerControllerId].gameObject != null)
-            {
-                Debug.LogError("There is already a player at playerControllerId " + playerControllerId + " for this connection.");
-                return;
-            }
-            GameObject playerEntity = new GameObject("Player " + playerControllerId);
+            GameObject player = new GameObject();
             new Traits.Networking.ClientManagerTrait() {
                 nickname = "test",
-                connection = conn
-            }.BuildAndAttach(ref playerEntity, ref _config);
-            _entityFactory.BuildEntity(playerEntity.GetInstanceID(), playerEntity.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
-
-            NetworkServer.AddPlayerForConnection(conn, playerEntity, playerControllerId);
-        }
-
-        void OnServerRemovePlayer (NetworkMessage netMsg)
-        {
-            Debug.Log("ServerEngine:OnServerRemovePlayer");
-
-            NetworkConnection conn = netMsg.conn;
-            RemovePlayerMessage message = netMsg.ReadMessage<RemovePlayerMessage>();
-            short playerControllerId = message.playerControllerId;
-            PlayerController playerController = conn.playerControllers[playerControllerId];
-            if (playerController.gameObject != null)
-            {
-                NetworkServer.Destroy(playerController.gameObject);
-            }
-            conn.playerControllers.RemoveAt(playerControllerId);
-        }
-
-        void OnServerError (NetworkMessage netMsg)
-        {
-            Debug.Log("ServerEngine:OnServerError");
-
-            ErrorMessage message = netMsg.ReadMessage<ErrorMessage>();
-            Debug.Log("Error from " + netMsg.conn.address + ", error code " + message.errorCode);
+                connection = conn,
+                playerControllerId = message.playerControllerId
+            }.BuildAndAttach(ref player, ref _config);
+            _entityFactory.BuildEntity(player.GetInstanceID(), player.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+            Debug.Log(player);
+            return player;
         }
     }
 }
