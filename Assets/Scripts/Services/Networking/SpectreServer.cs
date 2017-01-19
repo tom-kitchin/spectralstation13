@@ -26,17 +26,14 @@ namespace Services.Networking
             Debug.Log("Started server on port " + networkPort.ToString());
         }
 
-        public static void ConfigureServer ()
+        static void ConfigureServer ()
         {
             Application.runInBackground = true;
-            ConnectionConfig config = new ConnectionConfig();
-            config.Channels.Clear();
-            config.AddChannel(QosType.ReliableSequenced);
-            config.AddChannel(QosType.Unreliable);
+            ConnectionConfig config = SpectreConnectionConfig.connectionConfig;
             NetworkServer.Configure(config, maxConnections);
         }
 
-        public static void RegisterServerMessages ()
+        static void RegisterServerMessages ()
         {
             NetworkServer.RegisterHandler(MsgType.Connect, OnServerConnect);
             NetworkServer.RegisterHandler(MsgType.Disconnect, OnServerDisconnect);
@@ -50,26 +47,26 @@ namespace Services.Networking
 
         static void OnServerConnect (NetworkMessage netMsg)
         {
-            Debug.Log("ServerEngine:OnServerConnect");
+            Debug.Log("SpectreServer:OnServerConnect");
         }
 
         static void OnServerDisconnect (NetworkMessage netMsg)
         {
-            Debug.Log("ServerEngine:OnServerDisconnect");
+            Debug.Log("SpectreServer:OnServerDisconnect");
 
             NetworkServer.DestroyPlayersForConnection(netMsg.conn);
         }
 
         static void OnServerReady (NetworkMessage netMsg)
         {
-            Debug.Log("ServerEngine:OnServerReady");
+            Debug.Log("SpectreServer:OnServerReady");
 
             NetworkServer.SetClientReady(netMsg.conn);
         }
 
         static void OnServerAddPlayer (NetworkMessage netMsg)
         {
-            Debug.Log("ServerEngine:OnServerAddPlayer");
+            Debug.Log("SpectreServer:OnServerAddPlayer");
 
             NetworkConnection conn = netMsg.conn;
             AddPlayerMessage message = netMsg.ReadMessage<AddPlayerMessage>();
@@ -93,7 +90,7 @@ namespace Services.Networking
 
         static void OnServerRemovePlayer (NetworkMessage netMsg)
         {
-            Debug.Log("ServerEngine:OnServerRemovePlayer");
+            Debug.Log("SpectreServer:OnServerRemovePlayer");
 
             NetworkConnection conn = netMsg.conn;
             RemovePlayerMessage message = netMsg.ReadMessage<RemovePlayerMessage>();
@@ -108,7 +105,7 @@ namespace Services.Networking
 
         static void OnServerError (NetworkMessage netMsg)
         {
-            Debug.Log("ServerEngine:OnServerError");
+            Debug.Log("SpectreServer:OnServerError");
 
             ErrorMessage message = netMsg.ReadMessage<ErrorMessage>();
             Debug.Log("Error from " + netMsg.conn.address + ", error code " + message.errorCode);

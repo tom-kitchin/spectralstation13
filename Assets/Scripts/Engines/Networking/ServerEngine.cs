@@ -11,14 +11,9 @@ namespace Engines.Networking
 {
     class ServerEngine : INodesEngine, IQueryableNodeEngine
     {
-        public int networkPort = 7777;
-        public int maxConnections = 8;
-        NetworkServer _networkServer;
-
         public IEngineNodeDB nodesDB { set; private get; }
 
         readonly Type[] _acceptedNodes = {
-            typeof(ServerNode),
             typeof(ClientNode)
         };
         IGameObjectFactory _factory;
@@ -41,18 +36,10 @@ namespace Engines.Networking
 
         public void Add (INode obj)
         {
-            if (obj is ServerNode)
-            {
-                _serverNode = obj as ServerNode;
-            }
         }
 
         public void Remove (INode obj)
         {
-            if (obj is ServerNode)
-            {
-                _serverNode = null;
-            }
         }
 
         void StartServer ()
