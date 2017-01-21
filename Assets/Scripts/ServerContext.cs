@@ -4,9 +4,9 @@ using Svelto.ES;
 using Svelto.Factories;
 using Svelto.Ticker;
 using UnityEngine;
-using UnityEngine.Networking;
 using Config;
-using Config.Json;
+using Config.Loaders;
+using Config.Parsers;
 using Factories;
 using Engines.Networking;
 using Engines.Motion;
@@ -33,12 +33,14 @@ public class Server : ICompositionRoot
         _entityFactory = _enginesRoot = new EnginesRoot(_tickEngine);
 
         // Load entity and map data.
-        JsonFileConfigLoader configLoader = new JsonFileConfigLoader("mapTest");
-        _config = configLoader.WorldConfig;
+        string mapName = "mapTest";
+        WindowsFileConfigLoader configLoader = new WindowsFileConfigLoader();
+        _config = configLoader.Load(mapName, new JsonConfigParser());
         _factory = new NetworkGameObjectFromConfigFactory(_config);
 
         // Start engines.
         AddEngine(new ServerEngine(_factory, _entityFactory, _config, ref _onSetupComplete));
+        //AddEngine(new ServerConfigTransmissionEngine(_config));
         AddEngine(new MovementEngine());
 
         // Build initial entities.

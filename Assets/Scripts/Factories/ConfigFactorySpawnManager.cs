@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 using Svelto.ES;
 using Svelto.Factories;
 using Config;
+using Config.Datatypes;
 
 namespace Factories
 {
@@ -18,9 +19,9 @@ namespace Factories
             _entityFactory = entityFactory;
             _config = config;
 
-            foreach (string entityTypeName in config.entityTypes.Keys)
+            foreach (EntityTypeData entityType in config.entityTypes.Values)
             {
-                ClientScene.RegisterSpawnHandler(NetworkHash128.Parse(entityTypeName), SpawnEntity, UnspawnEntity);
+                ClientScene.RegisterSpawnHandler(entityType.assetId, SpawnEntity, UnspawnEntity);
             }
         }
 

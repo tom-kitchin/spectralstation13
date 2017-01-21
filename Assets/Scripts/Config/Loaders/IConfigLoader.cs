@@ -1,11 +1,11 @@
 ﻿using System;
+using Config.Parsers;
 
-namespace Config
+namespace Config.Loaders
 {
     interface IConfigLoader
     {
-        string MapPath { get; }
-        WorldConfig WorldConfig { get; }
+        WorldConfig Load (string name, IConfigParser parser);
     }
 
     public class ConfigLoadException : Exception

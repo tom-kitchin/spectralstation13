@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using Config.Datatypes;
 using Traits;
 
-namespace Config.Json.TraitDescriptorBuilders
+namespace Config.Filesystem.Json.TraitDescriptorBuilders
 {
     public static class HasSpritesBuilder
     {

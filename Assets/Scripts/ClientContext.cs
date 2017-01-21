@@ -2,9 +2,11 @@
 using Svelto.Context;
 using Svelto.ES;
 using Svelto.Ticker;
+using Svelto.Factories;
 using UnityEngine;
 using Config;
-using Config.Json;
+using Config.Loaders;
+using Config.Parsers;
 using Factories;
 using Engines.Networking;
 using Engines.Motion;
@@ -31,9 +33,10 @@ public class Client : ICompositionRoot
         _entityFactory = _enginesRoot = new EnginesRoot(_tickEngine);
 
         // Load entity and map data.
-        JsonFileConfigLoader configLoader = new JsonFileConfigLoader("mapTest");
-        _config = configLoader.WorldConfig;
-        NetworkGameObjectFromConfigFactory _factory = new NetworkGameObjectFromConfigFactory(_config);
+        string mapName = "mapTest";
+        WindowsFileConfigLoader configLoader = new WindowsFileConfigLoader();
+        _config = configLoader.Load(mapName, new JsonConfigParser());
+        _factory = new NetworkGameObjectFromConfigFactory(_config);
         ConfigFactorySpawnManager spawnManager = new ConfigFactorySpawnManager(_factory, _entityFactory, _config);
 
         // Start engines.
@@ -75,6 +78,7 @@ public class Client : ICompositionRoot
     void ICompositionRoot.OnContextDestroyed () { }
 
     EnginesRoot _enginesRoot;
+    IGameObjectFactory _factory;
     IEntityFactory _entityFactory;
     UnityTicker _tickEngine;
     WorldConfig _config;
