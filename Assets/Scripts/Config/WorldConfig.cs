@@ -9,13 +9,8 @@ namespace Config
         public EntityTypeDataDictionary entityTypes;
         public EntityDataList entities;
 
-        public WorldConfig (string name)
-        {
-            mapName = name;
-        }
-
         public static WorldConfig Empty {
-            get { return new WorldConfig(null); }
+            get { return new WorldConfig(); }
         }
     }
 }

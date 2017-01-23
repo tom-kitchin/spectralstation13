@@ -5,7 +5,8 @@ namespace Config.Parsers
 {
     public interface IConfigParser
     {
-        WorldConfig Parse (string name, byte[] entityData, byte[] layoutData);
+        WorldConfig Parse (byte[] entityData);
+        WorldConfig Parse (byte[] entityData, byte[] layoutData);
     }
 
     public class ConfigParseException : Exception

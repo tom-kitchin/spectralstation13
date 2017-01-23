@@ -3,12 +3,12 @@ using Svelto.Context;
 using Svelto.ES;
 using Svelto.Ticker;
 using Svelto.Factories;
-using UnityEngine;
+using Services.Networking;
 using Config;
 using Config.Loaders;
 using Config.Parsers;
+using Config.Serializers;
 using Factories;
-using Engines.Networking;
 using Engines.Motion;
 
 /*
@@ -19,8 +19,41 @@ public class Client : ICompositionRoot
 {
     public Client ()
     {
-        SetupEnginesAndComponents();
-        if (_onSetupComplete != null) { _onSetupComplete(); }
+        _onConfigReady += SetupEnginesAndComponents;
+        BaseEngineSetup();
+        ConnectToServer();
+    }
+
+    /**
+     * Set up anything we can without knowing server config, which isn't much.
+     * Also prepare the connection engine.
+     */
+    void BaseEngineSetup ()
+    {
+        _tickEngine = new UnityTicker();
+        _entityFactory = _enginesRoot = new EnginesRoot(_tickEngine);
+    }
+
+    /**
+     * We can't meaningfully progress with config and engine setup without
+     * connecting to the server, because we need the server to send the 
+     * game config.
+     */
+    void ConnectToServer ()
+    {
+        SpectreClient.onConfigDataValidated += LoadWorldConfigFromConfigData;
+        SpectreClient.StartClient();
+    }
+
+    /**
+     * Once we have the config sent from the server, we can load it up and then
+     * get on with the usual business.
+     */
+    void LoadWorldConfigFromConfigData (byte[] configData)
+    {
+        SerializedConfigLoader configLoader = new SerializedConfigLoader(configData, new ConfigDeserializer());
+        _config = configLoader.Load(new JsonConfigParser());
+        _onConfigReady();
     }
 
     /**
@@ -29,23 +62,14 @@ public class Client : ICompositionRoot
      */
     void SetupEnginesAndComponents ()
     {
-        _tickEngine = new UnityTicker();
-        _entityFactory = _enginesRoot = new EnginesRoot(_tickEngine);
-
         // Load entity and map data.
-        string mapName = "mapTest";
-        WindowsFileConfigLoader configLoader = new WindowsFileConfigLoader();
-        _config = configLoader.Load(mapName, new JsonConfigParser());
         _factory = new NetworkGameObjectFromConfigFactory(_config);
         ConfigFactorySpawnManager spawnManager = new ConfigFactorySpawnManager(_factory, _entityFactory, _config);
 
         // Start engines.
-        AddEngine(new ClientEngine(_factory, _entityFactory, _config, ref _onSetupComplete));
         AddEngine(new MovementEngine());
-
-        // Test connection stuff
-        GameObject go = new GameObject("ServerManager");
-        new Traits.Networking.ServerManagerTrait().BuildAndAttach(ref go, ref _config);
+        
+        if (_onSetupComplete != null) { _onSetupComplete(); }
     }
 
     /**
@@ -59,19 +83,8 @@ public class Client : ICompositionRoot
 
         _enginesRoot.AddEngine(engine);
     }
-
-    /**
-     * Builds GameComponents which use the IEntityDescriptorHolder to define their components in the Unity UI
-     */
-    void ICompositionRoot.OnContextCreated (UnityContext contextHolder)
-    {
-        IEntityDescriptorHolder[] entities = contextHolder.GetComponentsInChildren<IEntityDescriptorHolder>();
-
-        for (int i = 0; i < entities.Length; i++)
-        {
-            _entityFactory.BuildEntity((entities[i] as MonoBehaviour).gameObject.GetInstanceID(), entities[i].BuildDescriptorType());
-        }
-    }
+    
+    void ICompositionRoot.OnContextCreated (UnityContext contextHolder) { }
 
     void ICompositionRoot.OnContextInitialized () { }
 
@@ -82,6 +95,7 @@ public class Client : ICompositionRoot
     IEntityFactory _entityFactory;
     UnityTicker _tickEngine;
     WorldConfig _config;
+    event Action _onConfigReady;
     event Action _onSetupComplete;
 }
 

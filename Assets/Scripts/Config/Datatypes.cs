@@ -55,7 +55,7 @@ namespace Config.Datatypes
         public string name;
         public Texture2D texture;
         public Vector2 cellSize;
-        public string path;
+        public string filename;
 
         public Vector2 CellOrigin (Vector2 cellCoord)
         {

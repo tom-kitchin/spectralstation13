@@ -1,4 +1,4 @@
-﻿namespace Config.Filesystem.Helpers
+﻿namespace Config.Loaders.Helpers
 {
     public interface IFilesystemConfigHelper
     {
@@ -10,5 +10,7 @@
 
         string GetSpriteFilePath (string filename);
         string[] GetSpriteFilePaths ();
+        string GetMapCacheFilePath (string filename);
+        string[] GetMapCacheFilePaths ();
     }
 }

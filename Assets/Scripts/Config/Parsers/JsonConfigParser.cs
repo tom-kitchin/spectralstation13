@@ -11,15 +11,23 @@ namespace Config.Parsers
 {
     public class JsonConfigParser : IConfigParser
     {
-        public WorldConfig Parse (string name, byte[] entityData, byte[] layoutData)
+
+        public WorldConfig Parse (byte[] entityData)
         {
-            WorldConfig worldConfig = new WorldConfig(name);
+            WorldConfig worldConfig = new WorldConfig();
 
             JObject entityJson = LoadJsonFromData(entityData);
-            JObject layoutJson = LoadJsonFromData(layoutData);
-
             worldConfig.spriteMaps = BuildSpriteMapsFromEntityJson(entityJson);
             worldConfig.entityTypes = BuildEntityTypesFromEntityJson(entityJson);
+
+            return worldConfig;
+        }
+
+        public WorldConfig Parse (byte[] entityData, byte[] layoutData)
+        {
+            WorldConfig worldConfig = Parse(entityData);
+            
+            JObject layoutJson = LoadJsonFromData(layoutData);
             worldConfig.entities = BuildEntitiesFromLayoutJson(layoutJson);
 
             return worldConfig;
@@ -33,7 +41,7 @@ namespace Config.Parsers
                 SpriteMap spriteMap = new SpriteMap();
                 spriteMap.name = spriteMapToken.Name;
                 spriteMap.cellSize = new Vector2(spriteMapToken.Value["cellSizeX"].Value<int>(), spriteMapToken.Value["cellSizeY"].Value<int>());
-                spriteMap.path = spriteMapToken.Value["file"].Value<string>();
+                spriteMap.filename = spriteMapToken.Value["file"].Value<string>();
                 spriteMapDictionary.Add(spriteMapToken.Name, spriteMap);
             }
             return spriteMapDictionary;
@@ -49,7 +57,7 @@ namespace Config.Parsers
                 foreach (JProperty traitToken in entityTraitsToken.Children())
                 {
                     Type traitDescriptorType = Type.GetType("Traits." + traitToken.Name, true, true);
-                    Type traitDescriptorConstructorType = Type.GetType("Config.Json.TraitDescriptorBuilders." + traitToken.Name + "Builder", false, true);
+                    Type traitDescriptorConstructorType = Type.GetType("Config.Parsers.Json.TraitDescriptorBuilders." + traitToken.Name + "Builder", false, true);
                     if (traitDescriptorConstructorType != null)
                     {
                         entityType.traits.Add((Trait)traitDescriptorConstructorType.GetMethod("Build").Invoke(null, new object[] { traitToken.Value }));

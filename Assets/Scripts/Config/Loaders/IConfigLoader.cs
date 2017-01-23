@@ -5,7 +5,7 @@ namespace Config.Loaders
 {
     interface IConfigLoader
     {
-        WorldConfig Load (string name, IConfigParser parser);
+        WorldConfig Load (IConfigParser parser);
     }
 
     public class ConfigLoadException : Exception

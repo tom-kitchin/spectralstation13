@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
-using Config.Filesystem.Helpers;
+using Config.Loaders.Helpers;
 
 namespace Config.Serializers
 {
@@ -38,7 +38,7 @@ namespace Config.Serializers
 
             foreach (string spriteFilePath in _filesystemHelper.GetSpriteFilePaths())
             {
-                serials.Add(Path.GetFileNameWithoutExtension(spriteFilePath), LoadDataFromFile(spriteFilePath));
+                serials.Add(Path.GetFileName(spriteFilePath), LoadDataFromFile(spriteFilePath));
             }
 
             return serials;
@@ -78,21 +78,3 @@ namespace Config.Serializers
         }
     }
 }
-
-
-//    serializedEntityTypes = new Dictionary<string, byte[]>();
-
-//            BinaryFormatter formatter = new BinaryFormatter();
-//    SHA256 checksumHasher = SHA256Managed.Create();
-
-//    byte[] entityTypesData;
-//            using (MemoryStream stream = new MemoryStream())
-//            {
-//                EntityTypeDataDictionary entityTypes = _config.entityTypes;
-
-//    formatter.Serialize(stream, entityTypes);
-//                entityTypesData = stream.ToArray();
-//            }
-//byte[] checksum = checksumHasher.ComputeHash(entityTypesData);
-//serializedSpriteMaps.Add(BitConverter.ToString(checksum), entityTypesData);
-

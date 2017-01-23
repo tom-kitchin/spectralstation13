@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Config.Filesystem.Helpers
+namespace Config.Loaders.Helpers
 {
     public class WindowsFilesystemConfigHelper : IFilesystemConfigHelper
     {
@@ -33,7 +33,8 @@ namespace Config.Filesystem.Helpers
             get {
                 if (_mapCacheDirectoryPath == null)
                 {
-                    _mapCacheDirectoryPath = Path.Combine(ConfigDirectoryPath, "mapcache");
+                    string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    _mapCacheDirectoryPath = Path.Combine(Path.Combine(documentsPath, "Spectral Station 13"), "mapcache");
                 }
                 return _mapCacheDirectoryPath;
             }
@@ -77,6 +78,16 @@ namespace Config.Filesystem.Helpers
         public string[] GetSpriteFilePaths ()
         {
             return Directory.GetFiles(SpritesDirectoryPath);
+        }
+        
+        public string GetMapCacheFilePath (string filename)
+        {
+            return Path.Combine(MapCacheDirectoryPath, filename);
+        }
+
+        public string[] GetMapCacheFilePaths ()
+        {
+            return Directory.GetFiles(MapCacheDirectoryPath);
         }
     }
 }
