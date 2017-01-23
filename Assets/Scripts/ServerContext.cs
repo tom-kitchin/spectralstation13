@@ -4,11 +4,12 @@ using Svelto.ES;
 using Svelto.Factories;
 using Svelto.Ticker;
 using UnityEngine;
+using UnityEngine.Networking;
+using Services.Networking;
 using Config;
 using Config.Loaders;
 using Config.Parsers;
 using Factories;
-using Engines.Networking;
 using Engines.Motion;
 
 /*
@@ -19,8 +20,8 @@ public class Server : ICompositionRoot
 {
     public Server ()
     {
+        _onSetupComplete += StartServer;
         SetupEnginesAndComponents();
-        if (_onSetupComplete != null) { _onSetupComplete(); }
     }
 
     /**
@@ -32,20 +33,48 @@ public class Server : ICompositionRoot
         _tickEngine = new UnityTicker();
         _entityFactory = _enginesRoot = new EnginesRoot(_tickEngine);
 
-        // Load entity and map data.
+        // Load entity and map config.
         string mapName = "mapTest";
-        WindowsFileConfigLoader configLoader = new WindowsFileConfigLoader();
-        _config = configLoader.Load(mapName, new JsonConfigParser());
+        WindowsFileConfigLoader configLoader = new WindowsFileConfigLoader(mapName);
+        _config = configLoader.Load(new JsonConfigParser());
+        _config.mapName = mapName;
         _factory = new NetworkGameObjectFromConfigFactory(_config);
 
         // Start engines.
-        AddEngine(new ServerEngine(_factory, _entityFactory, _config, ref _onSetupComplete));
-        //AddEngine(new ServerConfigTransmissionEngine(_config));
         AddEngine(new MovementEngine());
 
         // Build initial entities.
         GameObject testRobot = _factory.Build("robot");
         _entityFactory.BuildEntity(testRobot.GetInstanceID(), testRobot.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+        
+        if (_onSetupComplete != null) { _onSetupComplete(); }
+    }
+    
+    /**
+     * Get this party started. As it were. SpectreServer does all the heavy lifting.
+     */
+    void StartServer ()
+    {
+        SpectreServer.onCreatePlayer += ServerCreatePlayer;
+        SpectreServer.StartServer();
+    }
+
+    /**
+     * Delegate for building a player object when a new player connects to the server.
+     */
+    GameObject ServerCreatePlayer (NetworkConnection conn, UnityEngine.Networking.NetworkSystem.AddPlayerMessage message)
+    {
+        Debug.Log("ServerContext:ServerCreatePlayer");
+
+        GameObject player = new GameObject();
+        new Traits.Networking.ClientManagerTrait() {
+            nickname = "test",
+            connection = conn,
+            playerControllerId = message.playerControllerId
+        }.BuildAndAttach(ref player, ref _config);
+        _entityFactory.BuildEntity(player.GetInstanceID(), player.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+        Debug.Log(player);
+        return player;
     }
 
     /**

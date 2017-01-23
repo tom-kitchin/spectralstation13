@@ -46,6 +46,11 @@ namespace Services.Networking
             if (onStartClient != null) { onStartClient(networkClient); }
         }
 
+        public static void Ready ()
+        {
+            ClientScene.Ready(networkClient.connection);
+        }
+
         static void ConfigureClient ()
         {
             Application.runInBackground = true;
@@ -75,10 +80,12 @@ namespace Services.Networking
 
             if (onClientConnect != null) { onClientConnect(netMsg); }
 
+            // We've connected, so we need the config checksum.
+            networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
+
             // Might do some scene work here normally, but we don't need to worry about that yet.
             // Let's just declare that we're good to go.
 
-            ClientScene.Ready(netMsg.conn);
         }
 
         static void OnClientDisconnect (NetworkMessage netMsg)
@@ -134,7 +141,7 @@ namespace Services.Networking
             
             _checksum = netMsg.reader.ReadBytesAndSize();
             string checksumString = System.Text.Encoding.UTF8.GetString(_checksum);
-            File.Exists(filesystemHelper.GetMapCacheFilePath(checksumString)) {
+            if (File.Exists(filesystemHelper.GetMapCacheFilePath(checksumString))) {
                 byte[] configData = File.ReadAllBytes(filesystemHelper.GetMapCacheFilePath(checksumString));
                 if (ChecksumCheck(configData, _checksum))
                 {

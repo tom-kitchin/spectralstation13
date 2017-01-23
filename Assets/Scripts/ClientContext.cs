@@ -70,6 +70,9 @@ public class Client : ICompositionRoot
         AddEngine(new MovementEngine());
         
         if (_onSetupComplete != null) { _onSetupComplete(); }
+
+        // Tell the server we're ready to proceed.
+        SpectreClient.Ready();
     }
 
     /**
