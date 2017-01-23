@@ -25,8 +25,8 @@ namespace Services.Networking
         public static event OnMessageHandler onClientScene;
         public static event OnMessageHandler onConfigChecksum;
         public static event OnMessageHandler onConfigDataStart;
-        public static event OnMessageHandler onConfigDataMiddle;
-        public static event OnMessageHandler onConfigDataEnd;
+        public static event OnMessageHandler onConfigDataPacket;
+        public static event OnMessageHandler onConfigDataFinished;
 
         static byte[] _checksum;
         static LargeDataPacketMessage[] _configLoadInProgressCollection;
@@ -76,8 +76,8 @@ namespace Services.Networking
 
             networkClient.RegisterHandler(SpectreMsgType.ConfigChecksum, OnConfigChecksum);
             networkClient.RegisterHandler(SpectreMsgType.ConfigDataStart, OnConfigDataStart);
-            networkClient.RegisterHandler(SpectreMsgType.ConfigDataMiddle, OnConfigDataMiddle);
-            networkClient.RegisterHandler(SpectreMsgType.ConfigDataEnd, OnConfigDataEnd);
+            networkClient.RegisterHandler(SpectreMsgType.ConfigDataPacket, OnConfigDataPacket);
+            networkClient.RegisterHandler(SpectreMsgType.ConfigDataFinished, OnConfigDataFinished);
         }
 
         /* SERVER MESSAGE HANDLERS */
@@ -178,84 +178,95 @@ namespace Services.Networking
             if (_checksum == null)
             {
                 // We really shouldn't be receiving the data if we can't check it, whoops.
-                // For the moment just ask for the checksum and start again from the beginning.
-                Debug.Log("Received start of config data but no checksum.");
-                networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
+                // We'll ask to restart when we get the ConfigDataFinished packet.
+                Debug.Log("Received ConfigDataStart but don't have a checksum.");
                 return;
             }
 
-            LargeDataPacketMessage configPacket = netMsg.ReadMessage<LargeDataPacketMessage>();
-            _configLoadInProgressCollection = new LargeDataPacketMessage[configPacket.totalPackets];
-            _configLoadInProgressCollection[configPacket.packetNumber] = configPacket;
+            LargeDataInfoMessage transferDetails = netMsg.ReadMessage<LargeDataInfoMessage>();
+            _configLoadInProgressCollection = new LargeDataPacketMessage[transferDetails.totalPackets];
         }
 
-        static void OnConfigDataMiddle (NetworkMessage netMsg)
+        static void OnConfigDataPacket (NetworkMessage netMsg)
         {
-            Debug.Log("SpectreClient:OnConfigDataMiddle");
+            Debug.Log("SpectreClient:OnConfigDataPacket");
 
-            if (onConfigDataMiddle != null) { onConfigDataMiddle(netMsg); }
+            if (onConfigDataPacket != null) { onConfigDataPacket(netMsg); }
 
             LargeDataPacketMessage configPacket = netMsg.ReadMessage<LargeDataPacketMessage>();
 
             if (_configLoadInProgressCollection == null)
             {
-                Debug.Log("Received middle data packet but haven't received first data packet!");
-                _configLoadInProgressCollection = new LargeDataPacketMessage[configPacket.totalPackets];
+                Debug.LogError("Received ConfigDataPacket but haven't received start instruction.");
+                return;
             }
 
             if (_configLoadInProgressCollection[configPacket.packetNumber] != null)
             {
-                Debug.Log("Received a packet which has already been received, packet number " + configPacket.packetNumber);
-                throw new ApplicationException("Received a packet which has already been received, packet number " + configPacket.packetNumber);
+                Debug.LogError("Received ConfigDataPacket which has already been received, packet number " + configPacket.packetNumber);
+                return;
             }
             
             _configLoadInProgressCollection[configPacket.packetNumber] = configPacket;
         }
 
-        static void OnConfigDataEnd (NetworkMessage netMsg)
+        static void OnConfigDataFinished (NetworkMessage netMsg)
         {
-            Debug.Log("SpectreClient:OnConfigDataEnd");
+            Debug.Log("SpectreClient:OnConfigDataFinished");
 
-            if (onConfigDataEnd != null) { onConfigDataEnd(netMsg); }
+            if (onConfigDataFinished != null) { onConfigDataFinished(netMsg); }
 
             if (_checksum == null)
             {
                 // We really shouldn't be receiving the data if we can't check it, whoops.
                 // For the moment just ask for the checksum again and start again.
+                Debug.LogError("Received ConfigDataFinished but haven't received checksum.");
                 _configLoadInProgressCollection = null;
                 networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
                 return;
             }
-            
-            LargeDataPacketMessage configPacket = netMsg.ReadMessage<LargeDataPacketMessage>();
 
             if (_configLoadInProgressCollection == null)
             {
-                Debug.Log("Received end data packet but haven't received first data packet!");
-                throw new ApplicationException("Received end data packet but haven't received first data packet!");
+                Debug.LogError("Received ConfigDataFinished but haven't received ConfigDataStart.");
+                _configLoadInProgressCollection = null;
+                networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
+                return;
             }
 
-            if (_configLoadInProgressCollection[configPacket.packetNumber] != null)
+            LargeDataInfoMessage dataInfo = netMsg.ReadMessage<LargeDataInfoMessage>();
+
+            bool missingPackets = false;
+            for (int i = 0; i < dataInfo.totalPackets; i++)
             {
-                Debug.Log("Received a packet which has already been received, packet number " + configPacket.packetNumber);
-                throw new ApplicationException("Received a packet which has already been received, packet number " + configPacket.packetNumber);
+                if (_configLoadInProgressCollection[i] == null)
+                {
+                    Debug.LogError("Received ConfigDataFinished but packet " + i + " is missing.");
+                    missingPackets = true;
+                }
             }
-
-            _configLoadInProgressCollection[configPacket.packetNumber] = configPacket;
+            if (missingPackets)
+            {
+                _configLoadInProgressCollection = null;
+                networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
+                return;
+            }
 
             byte[] configData = LargeDataHelper.CombinePackets(_configLoadInProgressCollection);
             _configLoadInProgressCollection = null;
             
-            if (ChecksumCheckData(configData, _checksum))
+            if (!ChecksumCheckData(configData, _checksum))
             {
-                SaveConfigCache(configData);
-                onConfigDataValidated(configData);
-                return;
+                // Either our config data or our checksum is corrupted,
+                // so we should start from the beginning.
+                Debug.LogError("Received ConfigDataFinished but output doesn't match checksum.");
+                networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
             }
 
-            // If we didn't return early above, our config data isn't good (corrupted in transit, presumably),
-            // so we have to ask for it to be resent.
-            networkClient.Send(SpectreMsgType.RequestConfigData, new EmptyMessage());
+            // Success!
+            SaveConfigCache(configData);
+            onConfigDataValidated(configData);
+            return;
         }
 
         static bool ChecksumCheckData(byte[] data, byte[] checksum)

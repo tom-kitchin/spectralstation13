@@ -23,6 +23,20 @@ namespace Services.Networking.Messages
         }
     }
 
+    public class LargeDataInfoMessage : MessageBase
+    {
+        public uint totalPackets;
+        public uint totalSize;
+
+        public LargeDataInfoMessage () { }
+
+        public LargeDataInfoMessage (uint totalPackets, uint totalSize)
+        {
+            this.totalPackets = totalPackets;
+            this.totalSize = totalSize;
+        }
+    }
+
     public static class LargeDataHelper
     {
         public static LargeDataPacketMessage[] BreakDataIntoPackets(byte[] payload, int maxSize = 1024)

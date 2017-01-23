@@ -74,15 +74,15 @@ namespace Services.Networking
             conn.SendWriter(writer, Channels.DefaultReliable);
         }
 
-        static void SendLargeDataReliably (byte[] data, short startMsgType, short middleMsgType, short endMsgType, NetworkConnection conn)
+        static void SendLargeDataReliably (byte[] data, short startMsgType, short packetMsgType, short finishedMsgType, NetworkConnection conn)
         {
             LargeDataPacketMessage[] packets = LargeDataHelper.BreakDataIntoPackets(data);
-            conn.Send(startMsgType, packets[0]);
-            for (int i = 1; i < packets.Length - 1; i++)
+            conn.Send(startMsgType, new LargeDataInfoMessage(packets[0].totalPackets, packets[0].totalSize));
+            for (int i = 0; i < packets.Length; i++)
             {
-                conn.Send(middleMsgType, packets[i]);
+                conn.Send(packetMsgType, packets[i]);
             }
-            conn.Send(endMsgType, packets[packets.Length - 1]);
+            conn.Send(finishedMsgType, new LargeDataInfoMessage(packets[0].totalPackets, packets[0].totalSize));
         }
         
         static void PrepareConfigForTransmission ()
@@ -202,8 +202,7 @@ namespace Services.Networking
             {
                 PrepareConfigForTransmission();
             }
-            
-            SendLargeDataReliably(_serializedConfig, SpectreMsgType.ConfigDataStart, SpectreMsgType.ConfigDataMiddle, SpectreMsgType.ConfigDataEnd, netMsg.conn);
+            SendLargeDataReliably(_serializedConfig, SpectreMsgType.ConfigDataStart, SpectreMsgType.ConfigDataPacket, SpectreMsgType.ConfigDataFinished, netMsg.conn);
         }
     }
 
