@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -140,10 +141,10 @@ namespace Services.Networking
             if (onConfigChecksum != null) { onConfigChecksum(netMsg); }
             
             _checksum = netMsg.reader.ReadBytesAndSize();
-            string checksumString = System.Text.Encoding.UTF8.GetString(_checksum);
+            string checksumString = ChecksumToString(_checksum);
             if (File.Exists(filesystemHelper.GetMapCacheFilePath(checksumString))) {
                 byte[] configData = File.ReadAllBytes(filesystemHelper.GetMapCacheFilePath(checksumString));
-                if (ChecksumCheck(configData, _checksum))
+                if (ChecksumCheckData(configData, _checksum))
                 {
                     onConfigDataValidated(configData);
                     return;
@@ -170,7 +171,7 @@ namespace Services.Networking
             }
             
             byte[] configData = netMsg.reader.ReadBytesAndSize();
-            if (ChecksumCheck(configData, _checksum))
+            if (ChecksumCheckData(configData, _checksum))
             {
                 SaveConfigCache(configData);
                 onConfigDataValidated(configData);
@@ -182,7 +183,7 @@ namespace Services.Networking
             networkClient.Send(SpectreMsgType.RequestConfigData, new EmptyMessage());
         }
 
-        static bool ChecksumCheck(byte[] data, byte[] checksum)
+        static bool ChecksumCheckData(byte[] data, byte[] checksum)
         {
             SHA256 checksumHasher = SHA256Managed.Create();
             byte[] localChecksum = checksumHasher.ComputeHash(data);
@@ -203,8 +204,18 @@ namespace Services.Networking
 
         static void SaveConfigCache(byte[] configData)
         {
-            string checksumString = System.Text.Encoding.UTF8.GetString(_checksum);
+            string checksumString = ChecksumToString(_checksum);
             File.WriteAllBytes(filesystemHelper.GetMapCacheFilePath(checksumString), configData);
+        }
+
+        static string ChecksumToString (byte[] checksum)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in checksum)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
         }
     }
 

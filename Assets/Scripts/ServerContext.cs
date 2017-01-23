@@ -9,6 +9,7 @@ using Services.Networking;
 using Config;
 using Config.Loaders;
 using Config.Parsers;
+using Config.Serializers;
 using Factories;
 using Engines.Motion;
 
@@ -56,6 +57,7 @@ public class Server : ICompositionRoot
     void StartServer ()
     {
         SpectreServer.onCreatePlayer += ServerCreatePlayer;
+        SpectreServer.Serializer = new WindowsFileConfigSerializer(_config.mapName);
         SpectreServer.StartServer();
     }
 
