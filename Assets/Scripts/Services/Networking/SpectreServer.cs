@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using Config.Serializers;
+using Services.Networking.Messages;
 
 namespace Services.Networking
 {
@@ -71,6 +72,17 @@ namespace Services.Networking
             writer.WriteBytesFull(message);
             writer.FinishMessage();
             conn.SendWriter(writer, Channels.DefaultReliable);
+        }
+
+        static void SendLargeDataReliably (byte[] data, short startMsgType, short middleMsgType, short endMsgType, NetworkConnection conn)
+        {
+            LargeDataPacketMessage[] packets = LargeDataHelper.BreakDataIntoPackets(data);
+            conn.Send(startMsgType, packets[0]);
+            for (int i = 1; i < packets.Length - 1; i++)
+            {
+                conn.Send(middleMsgType, packets[i]);
+            }
+            conn.Send(endMsgType, packets[packets.Length - 1]);
         }
         
         static void PrepareConfigForTransmission ()
@@ -190,8 +202,8 @@ namespace Services.Networking
             {
                 PrepareConfigForTransmission();
             }
-
-            SendBytesReliably(_serializedConfig, SpectreMsgType.ConfigData, netMsg.conn);
+            
+            SendLargeDataReliably(_serializedConfig, SpectreMsgType.ConfigDataStart, SpectreMsgType.ConfigDataMiddle, SpectreMsgType.ConfigDataEnd, netMsg.conn);
         }
     }
 

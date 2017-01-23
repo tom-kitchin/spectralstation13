@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
 using Config.Loaders.Helpers;
+using Services.Networking.Messages;
 
 namespace Services.Networking
 {
@@ -22,9 +24,12 @@ namespace Services.Networking
         public static event OnMessageHandler onClientError;
         public static event OnMessageHandler onClientScene;
         public static event OnMessageHandler onConfigChecksum;
-        public static event OnMessageHandler onConfigData;
+        public static event OnMessageHandler onConfigDataStart;
+        public static event OnMessageHandler onConfigDataMiddle;
+        public static event OnMessageHandler onConfigDataEnd;
 
         static byte[] _checksum;
+        static LargeDataPacketMessage[] _configLoadInProgressCollection;
         static IFilesystemConfigHelper _filesystemHelper;
         static IFilesystemConfigHelper filesystemHelper {
             get {
@@ -70,7 +75,9 @@ namespace Services.Networking
             networkClient.RegisterHandler(MsgType.Scene, OnClientScene);
 
             networkClient.RegisterHandler(SpectreMsgType.ConfigChecksum, OnConfigChecksum);
-            networkClient.RegisterHandler(SpectreMsgType.ConfigData, OnConfigData);
+            networkClient.RegisterHandler(SpectreMsgType.ConfigDataStart, OnConfigDataStart);
+            networkClient.RegisterHandler(SpectreMsgType.ConfigDataMiddle, OnConfigDataMiddle);
+            networkClient.RegisterHandler(SpectreMsgType.ConfigDataEnd, OnConfigDataEnd);
         }
 
         /* SERVER MESSAGE HANDLERS */
@@ -151,26 +158,94 @@ namespace Services.Networking
                 }
             }
 
+            if (_configLoadInProgressCollection != null)
+            {
+                // We may be in the middle of loading the config, so let that finish.
+                return;
+            }
+
             // If we didn't return early above, our config data isn't good or we don't have a cache for it,
             // so we need the data from the server.
             networkClient.Send(SpectreMsgType.RequestConfigData, new EmptyMessage());
         }
 
-        static void OnConfigData (NetworkMessage netMsg)
+        static void OnConfigDataStart (NetworkMessage netMsg)
         {
-            Debug.Log("SpectreClient:OnConfigData");
+            Debug.Log("SpectreClient:OnConfigDataStart");
 
-            if (onConfigData != null) { onConfigData(netMsg); }
+            if (onConfigDataStart != null) { onConfigDataStart(netMsg); }
 
             if (_checksum == null)
             {
                 // We really shouldn't be receiving the data if we can't check it, whoops.
                 // For the moment just ask for the checksum and start again from the beginning.
+                Debug.Log("Received start of config data but no checksum.");
+                networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
+                return;
+            }
+
+            LargeDataPacketMessage configPacket = netMsg.ReadMessage<LargeDataPacketMessage>();
+            _configLoadInProgressCollection = new LargeDataPacketMessage[configPacket.totalPackets];
+            _configLoadInProgressCollection[configPacket.packetNumber] = configPacket;
+        }
+
+        static void OnConfigDataMiddle (NetworkMessage netMsg)
+        {
+            Debug.Log("SpectreClient:OnConfigDataMiddle");
+
+            if (onConfigDataMiddle != null) { onConfigDataMiddle(netMsg); }
+
+            LargeDataPacketMessage configPacket = netMsg.ReadMessage<LargeDataPacketMessage>();
+
+            if (_configLoadInProgressCollection == null)
+            {
+                Debug.Log("Received middle data packet but haven't received first data packet!");
+                _configLoadInProgressCollection = new LargeDataPacketMessage[configPacket.totalPackets];
+            }
+
+            if (_configLoadInProgressCollection[configPacket.packetNumber] != null)
+            {
+                Debug.Log("Received a packet which has already been received, packet number " + configPacket.packetNumber);
+                throw new ApplicationException("Received a packet which has already been received, packet number " + configPacket.packetNumber);
+            }
+            
+            _configLoadInProgressCollection[configPacket.packetNumber] = configPacket;
+        }
+
+        static void OnConfigDataEnd (NetworkMessage netMsg)
+        {
+            Debug.Log("SpectreClient:OnConfigDataEnd");
+
+            if (onConfigDataEnd != null) { onConfigDataEnd(netMsg); }
+
+            if (_checksum == null)
+            {
+                // We really shouldn't be receiving the data if we can't check it, whoops.
+                // For the moment just ask for the checksum again and start again.
+                _configLoadInProgressCollection = null;
                 networkClient.Send(SpectreMsgType.RequestConfigChecksum, new EmptyMessage());
                 return;
             }
             
-            byte[] configData = netMsg.reader.ReadBytesAndSize();
+            LargeDataPacketMessage configPacket = netMsg.ReadMessage<LargeDataPacketMessage>();
+
+            if (_configLoadInProgressCollection == null)
+            {
+                Debug.Log("Received end data packet but haven't received first data packet!");
+                throw new ApplicationException("Received end data packet but haven't received first data packet!");
+            }
+
+            if (_configLoadInProgressCollection[configPacket.packetNumber] != null)
+            {
+                Debug.Log("Received a packet which has already been received, packet number " + configPacket.packetNumber);
+                throw new ApplicationException("Received a packet which has already been received, packet number " + configPacket.packetNumber);
+            }
+
+            _configLoadInProgressCollection[configPacket.packetNumber] = configPacket;
+
+            byte[] configData = LargeDataHelper.CombinePackets(_configLoadInProgressCollection);
+            _configLoadInProgressCollection = null;
+            
             if (ChecksumCheckData(configData, _checksum))
             {
                 SaveConfigCache(configData);
@@ -204,6 +279,9 @@ namespace Services.Networking
 
         static void SaveConfigCache(byte[] configData)
         {
+            if (!Directory.Exists(filesystemHelper.MapCacheDirectoryPath)) {
+                Directory.CreateDirectory(filesystemHelper.MapCacheDirectoryPath);
+            }
             string checksumString = ChecksumToString(_checksum);
             File.WriteAllBytes(filesystemHelper.GetMapCacheFilePath(checksumString), configData);
         }
