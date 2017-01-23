@@ -64,7 +64,7 @@ public class Client : ICompositionRoot
     {
         // Load entity and map data.
         _factory = new NetworkGameObjectFromConfigFactory(_config);
-        ConfigFactorySpawnManager spawnManager = new ConfigFactorySpawnManager(_factory, _entityFactory, _config);
+        ConfigFactorySpawnManager.Initialize(_factory, _entityFactory, _config);
 
         // Start engines.
         AddEngine(new MovementEngine());
