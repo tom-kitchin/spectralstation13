@@ -12,10 +12,12 @@ namespace Traits.Networking
 
         public override void BuildAndAttach (ref GameObject go, ref WorldConfig config)
         {
+            var networkIdentity = go.AddComponent<NetworkIdentity>();
             var clientRepImplementer = go.AddComponent<Implementers.Networking.ClientManager>();
             clientRepImplementer.nickname = nickname;
             clientRepImplementer.playerControllerId = playerControllerId;
             clientRepImplementer.connection = connection;
+            clientRepImplementer.identity = networkIdentity;
         }
     }
 }

@@ -11,6 +11,7 @@ using Config.Loaders;
 using Config.Parsers;
 using Config.Serializers;
 using Factories;
+using Implementers.Networking;
 using Engines.Motion;
 
 /*
@@ -40,6 +41,7 @@ public class Server : ICompositionRoot
         _config = configLoader.Load(new JsonConfigParser());
         _config.mapName = mapName;
         _factory = new NetworkGameObjectFromConfigFactory(_config);
+        _playerPrefab = Resources.Load<GameObject>("Prefabs/PlayerManager");
 
         // Start engines.
         AddEngine(new MovementEngine());
@@ -67,13 +69,12 @@ public class Server : ICompositionRoot
     GameObject ServerCreatePlayer (NetworkConnection conn, UnityEngine.Networking.NetworkSystem.AddPlayerMessage message)
     {
         Debug.Log("ServerContext:ServerCreatePlayer");
-
-        GameObject player = new GameObject();
-        new Traits.Networking.ClientManagerTrait() {
-            nickname = "test",
-            connection = conn,
-            playerControllerId = message.playerControllerId
-        }.BuildAndAttach(ref player, ref _config);
+        
+        GameObject player = _factory.Build(_playerPrefab);
+        ClientManager manager = player.GetComponent<ClientManager>();
+        manager.connection = conn;
+        manager.playerControllerId = message.playerControllerId;
+        manager.identity = player.GetComponent<NetworkIdentity>();
         _entityFactory.BuildEntity(player.GetInstanceID(), player.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
         Debug.Log(player);
         return player;
@@ -114,6 +115,7 @@ public class Server : ICompositionRoot
     UnityTicker _tickEngine;
     WorldConfig _config;
     event Action _onSetupComplete;
+    GameObject _playerPrefab;
 }
 
 /*

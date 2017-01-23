@@ -55,6 +55,7 @@ namespace Services.Networking
         public static void Ready ()
         {
             ClientScene.Ready(networkClient.connection);
+            ClientScene.AddPlayer(0);
         }
 
         static void ConfigureClient ()
@@ -78,6 +79,46 @@ namespace Services.Networking
             networkClient.RegisterHandler(SpectreMsgType.ConfigDataStart, OnConfigDataStart);
             networkClient.RegisterHandler(SpectreMsgType.ConfigDataPacket, OnConfigDataPacket);
             networkClient.RegisterHandler(SpectreMsgType.ConfigDataFinished, OnConfigDataFinished);
+        }
+
+
+        static bool ChecksumCheckData (byte[] data, byte[] checksum)
+        {
+            SHA256 checksumHasher = SHA256Managed.Create();
+            byte[] localChecksum = checksumHasher.ComputeHash(data);
+            bool equal = false;
+            if (checksum.Length == localChecksum.Length)
+            {
+                for (int i = 0; i < checksum.Length; i++)
+                {
+                    if (checksum[i] != localChecksum[i])
+                    {
+                        break;
+                    }
+                    equal = true;
+                }
+            }
+            return equal;
+        }
+
+        static void SaveConfigCache (byte[] configData)
+        {
+            if (!Directory.Exists(filesystemHelper.MapCacheDirectoryPath))
+            {
+                Directory.CreateDirectory(filesystemHelper.MapCacheDirectoryPath);
+            }
+            string checksumString = ChecksumToString(_checksum);
+            File.WriteAllBytes(filesystemHelper.GetMapCacheFilePath(checksumString), configData);
+        }
+
+        static string ChecksumToString (byte[] checksum)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in checksum)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
         }
 
         /* SERVER MESSAGE HANDLERS */
@@ -267,44 +308,6 @@ namespace Services.Networking
             SaveConfigCache(configData);
             onConfigDataValidated(configData);
             return;
-        }
-
-        static bool ChecksumCheckData(byte[] data, byte[] checksum)
-        {
-            SHA256 checksumHasher = SHA256Managed.Create();
-            byte[] localChecksum = checksumHasher.ComputeHash(data);
-            bool equal = false;
-            if (checksum.Length == localChecksum.Length)
-            {
-                for (int i = 0; i < checksum.Length; i++)
-                {
-                    if (checksum[i] != localChecksum[i])
-                    {
-                        break;
-                    }
-                    equal = true;
-                }
-            }
-            return equal;
-        }
-
-        static void SaveConfigCache(byte[] configData)
-        {
-            if (!Directory.Exists(filesystemHelper.MapCacheDirectoryPath)) {
-                Directory.CreateDirectory(filesystemHelper.MapCacheDirectoryPath);
-            }
-            string checksumString = ChecksumToString(_checksum);
-            File.WriteAllBytes(filesystemHelper.GetMapCacheFilePath(checksumString), configData);
-        }
-
-        static string ChecksumToString (byte[] checksum)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (byte b in checksum)
-            {
-                sb.Append(b.ToString("x2"));
-            }
-            return sb.ToString();
         }
     }
 

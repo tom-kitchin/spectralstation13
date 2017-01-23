@@ -22,6 +22,8 @@ namespace Services.Networking
             _config = config;
             _entityTypeByNetworkHashLookup = new Dictionary<NetworkHash128, string>();
 
+            ClientScene.RegisterPrefab(Resources.Load<GameObject>("Prefabs/PlayerManager"));
+
             foreach (EntityTypeData entityType in _config.entityTypes.Values)
             {
                 ClientScene.RegisterSpawnHandler(entityType.assetId, SpawnEntity, UnspawnEntity);
