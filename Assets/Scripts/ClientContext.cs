@@ -1,7 +1,6 @@
 ﻿using System;
 using Svelto.Context;
-using Svelto.ES;
-using Svelto.Ticker;
+using Svelto.ECS;
 using Svelto.Factories;
 using Services.Networking;
 using Config;
@@ -9,6 +8,7 @@ using Config.Loaders;
 using Config.Parsers;
 using Config.Serializers;
 using Factories;
+using Engines;
 using Engines.Motion;
 
 /*
@@ -30,8 +30,7 @@ public class Client : ICompositionRoot
      */
     void BaseEngineSetup ()
     {
-        _tickEngine = new UnityTicker();
-        _entityFactory = _enginesRoot = new EnginesRoot(_tickEngine);
+        _entityFactory = _enginesRoot = new EnginesRoot();
     }
 
     /**
@@ -77,14 +76,16 @@ public class Client : ICompositionRoot
 
     /**
      * Initialise engines.
-     * If they're Tickable engines, sets them up to tick properly.
      */
     void AddEngine (IEngine engine)
     {
-        if (engine is ITickableBase)
-            _tickEngine.Add(engine as ITickableBase);
-
         _enginesRoot.AddEngine(engine);
+
+        // Trigger ILateInitEngine LateInit calls.
+        if (engine is ILateInitEngine)
+        {
+            (engine as ILateInitEngine).LateInit();
+        }
     }
     
     void ICompositionRoot.OnContextCreated (UnityContext contextHolder) { }
@@ -96,7 +97,6 @@ public class Client : ICompositionRoot
     EnginesRoot _enginesRoot;
     IGameObjectFactory _factory;
     IEntityFactory _entityFactory;
-    UnityTicker _tickEngine;
     WorldConfig _config;
     event Action _onConfigReady;
     event Action _onSetupComplete;

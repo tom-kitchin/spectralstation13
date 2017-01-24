@@ -1,7 +1,4 @@
-﻿using Svelto.ES;
-using Implementers.Networking;
-
-namespace Components.Control
+﻿namespace Components.Control
 {
     public interface IIsPlayerControllableComponent : IComponent
     {

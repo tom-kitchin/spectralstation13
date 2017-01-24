@@ -1,6 +1,4 @@
-﻿using Svelto.ES;
-
-namespace Components.Motion
+﻿namespace Components.Motion
 {
     public interface ICanMoveComponent : IComponent
     {
