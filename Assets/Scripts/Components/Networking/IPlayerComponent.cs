@@ -3,7 +3,7 @@ using Svelto.ES;
 
 namespace Components.Networking
 {
-    public interface IClientComponent : IComponent
+    public interface IPlayerComponent : IComponent
     {
         string nickname { get; }
         int playerControllerId { get; }

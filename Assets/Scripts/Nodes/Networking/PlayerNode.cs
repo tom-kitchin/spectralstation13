@@ -3,9 +3,9 @@ using Components.Networking;
 
 namespace Nodes.Networking
 {
-    public class ClientNode : NodeWithID
+    public class PlayerNode : NodeWithID
     {
-        public IClientComponent clientComponent;
+        public IPlayerComponent clientComponent;
         public INetworkEntityComponent networkEntityComponent;
     }
 }

@@ -4,7 +4,7 @@ using Components.Networking;
 
 namespace Implementers.Networking
 {
-    public class ClientManager : MonoBehaviour, IClientComponent, INetworkEntityComponent
+    public class PlayerManager : MonoBehaviour, IPlayerComponent, INetworkEntityComponent
     {
         public string nickname;
         public int playerControllerId;
@@ -12,8 +12,8 @@ namespace Implementers.Networking
         public NetworkIdentity identity;
 
         NetworkIdentity INetworkEntityComponent.identity { get { return identity; } }
-        string IClientComponent.nickname { get { return nickname; } }
-        int IClientComponent.playerControllerId { get { return playerControllerId; } }
-        NetworkConnection IClientComponent.connection { get { return connection; } }
+        string IPlayerComponent.nickname { get { return nickname; } }
+        int IPlayerComponent.playerControllerId { get { return playerControllerId; } }
+        NetworkConnection IPlayerComponent.connection { get { return connection; } }
     }
 }

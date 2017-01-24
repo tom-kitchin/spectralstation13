@@ -4,7 +4,7 @@ using Config;
 
 namespace Traits.Networking
 {
-    public class ClientManagerTrait : Trait
+    public class PlayerManagerTrait : Trait
     {
         public string nickname;
         public int playerControllerId;
@@ -13,7 +13,7 @@ namespace Traits.Networking
         public override void BuildAndAttach (ref GameObject go, ref WorldConfig config)
         {
             var networkIdentity = go.AddComponent<NetworkIdentity>();
-            var clientRepImplementer = go.AddComponent<Implementers.Networking.ClientManager>();
+            var clientRepImplementer = go.AddComponent<Implementers.Networking.PlayerManager>();
             clientRepImplementer.nickname = nickname;
             clientRepImplementer.playerControllerId = playerControllerId;
             clientRepImplementer.connection = connection;

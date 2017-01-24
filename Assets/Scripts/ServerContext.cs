@@ -80,7 +80,7 @@ public class Server : ICompositionRoot
         Debug.Log("ServerContext:ServerCreatePlayer");
         
         GameObject player = _factory.Build(_playerPrefab);
-        ClientManager manager = player.GetComponent<ClientManager>();
+        PlayerManager manager = player.GetComponent<PlayerManager>();
         manager.connection = conn;
         manager.playerControllerId = message.playerControllerId;
         manager.identity = player.GetComponent<NetworkIdentity>();
