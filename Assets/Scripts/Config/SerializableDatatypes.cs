@@ -1,34 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using Traits;
+using System;
 
-namespace Config.Datatypes
+namespace Config.Datatypes.Serializable
 {
+    [Serializable]
     public class EntityTypeData : INetworkSpawnable
     {
-        public string type;
         public List<Trait> traits;
-        public NetworkHash128 assetId {
-            get {
-                if (!_hasGeneratedAssetId)
-                {
-                    if (type == null)
-                    {
-                        throw new FormatException("EntityTypeData has no type name, so can't generate an assetId");
-                    }
-                    _assetId = AssetIdHelper.GenerateAssetIdFromString(type);
-                    _hasGeneratedAssetId = true;
-                } 
-                return _assetId;
-            }
-        }
+        public NetworkHash128 assetId { get { return _assetId; } }
 
+        public EntityTypeData ()
+        {
+            Debug.Log("Generating asset ID");
+            // Try and guarantee asset ID uniqueness.
+            _assetIdCounter++;
+            // Converts an integer to hex representation, which is what the NetworkHash128 knows how to read.
+            _assetId = NetworkHash128.Parse(_assetIdCounter.ToString("x8"));
+            Debug.Log(_assetId);
+        }
+        static int _assetIdCounter = 1;
         NetworkHash128 _assetId;
-        bool _hasGeneratedAssetId = false;
     }
-    
+
     public class EntityData
     {
         public string entityType;
@@ -49,13 +45,13 @@ namespace Config.Datatypes
         public int cellX { set { cellCoord.x = value; } }
         public int cellY { set { cellCoord.y = value; } }
     }
-    
+
+    [Serializable]
     public class SpriteMap
     {
         public string name;
         public Texture2D texture;
         public Vector2 cellSize;
-        public string filename;
 
         public Vector2 CellOrigin (Vector2 cellCoord)
         {
@@ -67,8 +63,7 @@ namespace Config.Datatypes
             return new Rect(CellOrigin(cellCoord), cellSize);
         }
     }
-
-    public class EntityDataList : List<EntityData> { }
+    
+    [Serializable]
     public class EntityTypeDataDictionary : Dictionary<string, EntityTypeData> { }
-    public class SpriteMapDictionary : Dictionary<string, SpriteMap> { }
 }
