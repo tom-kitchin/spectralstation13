@@ -1,20 +1,21 @@
 ﻿using System;
 using UnityEngine;
-using Svelto.ES;
-using Svelto.Ticker;
+using Svelto.ECS;
+using Svelto.Tasks;
 using Nodes.Motion;
 
 namespace Engines.Motion
 {
-    public class MovementEngine : INodesEngine, ITickable, IQueryableNodeEngine
+    public class MovementEngine : INodesEngine, IQueryableNodeEngine, ILateInitEngine
     {
         public IEngineNodeDB nodesDB { set; private get; }
 
         readonly Type[] _acceptedNodes = { typeof(MovementNode) };
+        public Type[] AcceptedNodes () { return _acceptedNodes; }
 
-        public Type[] AcceptedNodes ()
+        public void LateInit ()
         {
-            return _acceptedNodes;
+            TaskRunner.Instance.Run(new TimedLoopActionEnumerator(Tick));
         }
 
         public void Add (INode obj)
@@ -25,7 +26,7 @@ namespace Engines.Motion
         {
         }
 
-        public void Tick (float deltaTime)
+        void Tick (float deltaTime)
         {
             var movementNodeList = nodesDB.QueryNodes<MovementNode>();
 

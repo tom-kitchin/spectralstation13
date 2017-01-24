@@ -1,17 +1,18 @@
 ﻿using System;
 using Svelto.Context;
-using Svelto.ES;
+using Svelto.ECS;
 using Svelto.Factories;
-using Svelto.Ticker;
 using UnityEngine;
 using UnityEngine.Networking;
 using Services.Networking;
+using Services.EntityDescriptors;
 using Config;
 using Config.Loaders;
 using Config.Parsers;
 using Config.Serializers;
 using Factories;
 using Implementers.Networking;
+using Engines;
 using Engines.Motion;
 
 /*
@@ -33,8 +34,7 @@ public class Server : ICompositionRoot
      */
     void SetupEnginesAndComponents ()
     {
-        _tickEngine = new UnityTicker();
-        _entityFactory = _enginesRoot = new EnginesRoot(_tickEngine);
+        _entityFactory = _enginesRoot = new EnginesRoot();
 
         // Load entity and map config.
         string mapName = "mapTest";
@@ -67,7 +67,7 @@ public class Server : ICompositionRoot
     {
         // Build initial entities.
         GameObject testRobot = _factory.Build("robot");
-        _entityFactory.BuildEntity(testRobot.GetInstanceID(), testRobot.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+        _entityFactory.BuildEntity(testRobot.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(testRobot));
         SpectreServer.Spawn(testRobot);
 
         // Testing bullshit
@@ -87,7 +87,7 @@ public class Server : ICompositionRoot
         manager.connection = conn;
         manager.playerControllerId = message.playerControllerId;
         manager.identity = player.GetComponent<NetworkIdentity>();
-        _entityFactory.BuildEntity(player.GetInstanceID(), player.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+        _entityFactory.BuildEntity(player.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(player));
         Debug.Log(player);
         return player;
     }
@@ -98,10 +98,13 @@ public class Server : ICompositionRoot
      */
     void AddEngine (IEngine engine)
     {
-        if (engine is ITickableBase)
-            _tickEngine.Add(engine as ITickableBase);
-
         _enginesRoot.AddEngine(engine);
+
+        // Trigger ILateInitEngine LateInit calls.
+        if (engine is ILateInitEngine)
+        {
+            (engine as ILateInitEngine).LateInit();
+        }
     }
 
     /**
@@ -124,7 +127,6 @@ public class Server : ICompositionRoot
     EnginesRoot _enginesRoot;
     IGameObjectFactory _factory;
     IEntityFactory _entityFactory;
-    UnityTicker _tickEngine;
     WorldConfig _config;
     event Action _onSetupComplete;
     GameObject _playerPrefab;

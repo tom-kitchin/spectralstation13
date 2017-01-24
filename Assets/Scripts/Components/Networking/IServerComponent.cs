@@ -1,5 +1,4 @@
 ﻿using UnityEngine.Networking;
-using Svelto.ES;
 
 namespace Components.Networking
 {

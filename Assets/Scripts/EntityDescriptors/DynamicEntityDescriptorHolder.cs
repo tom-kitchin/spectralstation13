@@ -1,9 +1,9 @@
-﻿using Svelto.ES;
-using System;
-using UnityEngine;
+﻿using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using Svelto.ECS;
+using Components;
 
 namespace EntityDescriptors
 {
@@ -81,14 +81,5 @@ namespace EntityDescriptors
          * the superclass to receive the list correctly.
          */
         public DynamicEntityDescriptor (IComponent[] componentsImplementor) : base(NodesToBuild(componentsImplementor), componentsImplementor) { }
-    }
-
-    [DisallowMultipleComponent]
-    public class DynamicEntityDescriptorHolder : MonoBehaviour, IEntityDescriptorHolder
-    {
-        EntityDescriptor IEntityDescriptorHolder.BuildDescriptorType ()
-        {
-            return new DynamicEntityDescriptor(GetComponentsInChildren<IComponent>());
-        }
     }
 }
