@@ -69,7 +69,10 @@ public class Server : ICompositionRoot
         GameObject testRobot = _factory.Build("robot");
         _entityFactory.BuildEntity(testRobot.GetInstanceID(), testRobot.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
         SpectreServer.Spawn(testRobot);
-        testRobot.GetComponent<Implementers.Motion.CanMove>().movement = new Vector2(0.1f, 0.1f);
+
+        // Testing bullshit
+        TestMoveControls tester = GameObject.FindObjectOfType<TestMoveControls>();
+        tester.testEntity = testRobot;
     }
 
     /**

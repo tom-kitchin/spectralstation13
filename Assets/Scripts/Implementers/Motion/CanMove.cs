@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using Components.Motion;
 
 namespace Implementers.Motion
 {
-    public class CanMove : MonoBehaviour, IMovementComponent, ICanMoveComponent
+    public class CanMove : NetworkBehaviour, IMovementComponent, ICanMoveComponent
     {
-        public float speed;
+        [SyncVar]
         public Vector2 movement;
+
+        public float speed;
         public Transform _transform;
 
         float ICanMoveComponent.speed { get { return speed; } }
