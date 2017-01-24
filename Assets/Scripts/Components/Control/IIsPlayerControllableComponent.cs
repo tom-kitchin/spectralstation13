@@ -1,9 +1,10 @@
 ﻿using Svelto.ES;
+using Implementers.Networking;
 
 namespace Components.Control
 {
     public interface IIsPlayerControllableComponent : IComponent
     {
-        bool currentlyControlled { get; set; }
+        DispatcherOnChange<int, PlayerManager> controlledBy { get; set; }
     }
 }

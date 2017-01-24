@@ -1,12 +1,16 @@
 ﻿using UnityEngine;
+using Svelto.ES;
 using Components.Control;
+using Implementers.Networking;
 
 namespace Implementers.Control
 {
     public class IsPlayerControllable : MonoBehaviour, IIsPlayerControllableComponent
     {
-        public bool currentlyControlled;
+        public PlayerManager controlledBy { get { _controlledBy._value; } set { _controlledBy.value = value; } }
 
-        bool IIsPlayerControllableComponent.currentlyControlled { get { return currentlyControlled; } set { currentlyControlled = value; } }
+        DispatcherOnChange<int, PlayerManager> _controlledBy;
+
+        DispatcherOnChange<int, PlayerManager> IIsPlayerControllableComponent.controlledBy { get { return _controlledBy; } set { _controlledBy = value; } }
     }
 }
