@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using Svelto.ES;
+using Svelto.ECS;
 using Svelto.Factories;
 using Config;
 using Config.Datatypes;
+using Services.EntityDescriptors;
 
 namespace Services.Networking
 {
@@ -36,7 +37,7 @@ namespace Services.Networking
             Debug.Log("Spawning " + id.ToString());
             GameObject go = _factory.Build(_entityTypeByNetworkHashLookup[id]);
             go.transform.position = position;
-            _entityFactory.BuildEntity(go.GetInstanceID(), go.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+            _entityFactory.BuildEntity(go.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(go));
             return go;
         }
 

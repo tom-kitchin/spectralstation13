@@ -17,7 +17,6 @@ namespace Factories
         {
             GameObject entity = new GameObject(type);
             entity.SetActive(false);
-            entity.AddComponent<DynamicEntityDescriptorHolder>();
             new NetworkMobTrait().BuildAndAttach(ref entity, ref _config);
             EntityTypeData entityType = _config.entityTypes[type];
             foreach (Trait trait in entityType.traits)

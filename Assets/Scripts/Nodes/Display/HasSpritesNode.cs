@@ -1,4 +1,4 @@
-﻿using Svelto.ES;
+﻿using Svelto.ECS;
 using Components.Display;
 
 namespace Nodes.Display

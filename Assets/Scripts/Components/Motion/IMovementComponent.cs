@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Svelto.ES;
 
 namespace Components.Motion
 {

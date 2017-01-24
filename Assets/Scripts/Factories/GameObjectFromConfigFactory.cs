@@ -22,7 +22,6 @@ namespace Factories
         public GameObject Build (string type)
         {
             GameObject entity = new GameObject(type);
-            entity.AddComponent<DynamicEntityDescriptorHolder>();
             EntityTypeData entityType = _config.entityTypes[type];
             foreach (Trait trait in entityType.traits)
             {

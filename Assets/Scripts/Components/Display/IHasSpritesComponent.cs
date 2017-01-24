@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using Svelto.ES;
 
 namespace Components.Display
 {
