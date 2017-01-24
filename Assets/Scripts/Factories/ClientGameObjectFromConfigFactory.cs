@@ -9,13 +9,14 @@ using EntityDescriptors;
 
 namespace Factories
 {
-    public class NetworkGameObjectFromConfigFactory : GameObjectFromConfigFactory, IGameObjectFactory
+    public class ClientGameObjectFromConfigFactory : GameObjectFromConfigFactory, IGameObjectFactory
     {
-        public NetworkGameObjectFromConfigFactory (WorldConfig config) : base(config) { }
+        public ClientGameObjectFromConfigFactory (WorldConfig config) : base(config) { }
 
         public new GameObject Build (string type)
         {
             GameObject entity = new GameObject(type);
+            entity.SetActive(false);
             entity.AddComponent<DynamicEntityDescriptorHolder>();
             new NetworkMobTrait().BuildAndAttach(ref entity, ref _config);
             EntityTypeData entityType = _config.entityTypes[type];
@@ -23,9 +24,6 @@ namespace Factories
             {
                 trait.BuildAndAttach(ref entity, ref _config);
             }
-            // Registering a dynamic GameObject handily allows us to set its assetId
-            // so we can catch it clientside with a custom SpawnHandler.
-            ClientScene.RegisterPrefab(entity, entityType.assetId);
 
             return entity;
         }

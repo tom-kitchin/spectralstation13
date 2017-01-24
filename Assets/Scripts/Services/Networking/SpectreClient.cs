@@ -46,6 +46,7 @@ namespace Services.Networking
          */
         public static void StartClient ()
         {
+            LogFilter.currentLogLevel = LogFilter.Debug;
             ConfigureClient();
             networkClient.Connect(networkAddress, networkPort);
             Debug.Log("Started client connection to " + networkAddress + ":" + networkPort);
@@ -54,8 +55,8 @@ namespace Services.Networking
 
         public static void Ready ()
         {
-            ClientScene.Ready(networkClient.connection);
-            ClientScene.AddPlayer(0);
+            // Adding a player also declares us Ready.
+            ClientScene.AddPlayer(networkClient.connection, 0);
         }
 
         static void ConfigureClient ()
@@ -171,8 +172,7 @@ namespace Services.Networking
             Debug.Log("SpectreClient:OnClientScene");
 
             if (onClientScene != null) { onClientScene(netMsg); }
-
-            NetworkConnection conn = netMsg.conn;
+            
             StringMessage message = netMsg.ReadMessage<StringMessage>();
             
             if (networkClient.isConnected && !NetworkServer.active)

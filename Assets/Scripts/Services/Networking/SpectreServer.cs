@@ -12,7 +12,8 @@ namespace Services.Networking
     {
         public static int networkPort = 7777;
         public static int maxConnections = 8;
-        
+
+        public static Action onServerStart;
         public static event CreatePlayerHandler onCreatePlayer;
         public static event OnMessageHandler onServerConnect;
         public static event OnMessageHandler onServerDisconnect;
@@ -34,6 +35,7 @@ namespace Services.Networking
          */
         public static void StartServer ()
         {
+            LogFilter.currentLogLevel = LogFilter.Debug;
             ConfigureServer();
             if (!NetworkServer.Listen(networkPort))
             {
@@ -42,6 +44,12 @@ namespace Services.Networking
             }
             RegisterServerMessages();
             Debug.Log("Started server on port " + networkPort.ToString());
+            if (onServerStart != null) { onServerStart(); }
+        }
+
+        public static void Spawn (GameObject go)
+        {
+            NetworkServer.Spawn(go);
         }
 
         static void ConfigureServer ()

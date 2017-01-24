@@ -23,6 +23,7 @@ public class Server : ICompositionRoot
     public Server ()
     {
         _onSetupComplete += StartServer;
+        SpectreServer.onServerStart += OnServerStart;
         SetupEnginesAndComponents();
     }
 
@@ -45,10 +46,6 @@ public class Server : ICompositionRoot
 
         // Start engines.
         AddEngine(new MovementEngine());
-
-        // Build initial entities.
-        GameObject testRobot = _factory.Build("robot");
-        _entityFactory.BuildEntity(testRobot.GetInstanceID(), testRobot.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
         
         if (_onSetupComplete != null) { _onSetupComplete(); }
     }
@@ -61,6 +58,18 @@ public class Server : ICompositionRoot
         SpectreServer.onCreatePlayer += ServerCreatePlayer;
         SpectreServer.Serializer = new WindowsFileConfigSerializer(_config.mapName);
         SpectreServer.StartServer();
+    }
+
+    /**
+     * Triggered when SpectreServer is up and running.
+     */
+    void OnServerStart ()
+    {
+        // Build initial entities.
+        GameObject testRobot = _factory.Build("robot");
+        _entityFactory.BuildEntity(testRobot.GetInstanceID(), testRobot.GetComponent<IEntityDescriptorHolder>().BuildDescriptorType());
+        SpectreServer.Spawn(testRobot);
+        testRobot.GetComponent<Implementers.Motion.CanMove>().movement = new Vector2(0.1f, 0.1f);
     }
 
     /**
