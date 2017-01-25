@@ -67,7 +67,7 @@ public class Client : ICompositionRoot
         ConfigFactorySpawnManager.Initialize(_factory, _entityFactory, _config);
 
         // Start engines.
-        AddEngine(new MovementInputEngine());
+        AddEngine(new MovementControlEngine());
         AddEngine(new MovementEngine());
         
         if (_onSetupComplete != null) { _onSetupComplete(); }

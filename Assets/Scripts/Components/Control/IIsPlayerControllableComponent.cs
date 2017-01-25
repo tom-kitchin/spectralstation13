@@ -1,10 +1,9 @@
-﻿using Svelto.ECS;
+﻿using UnityEngine;
 
 namespace Components.Control
 {
     public interface IIsPlayerControllableComponent : IComponent
     {
-        DispatchOnChange<bool> currentlyControlled { get; }
-        DispatchOnChange<int> controlledByNodeId { get; }
+        GameObject controllingPlayer { get; set; }
     }
 }
