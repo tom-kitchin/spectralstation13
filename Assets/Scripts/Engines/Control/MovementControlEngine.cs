@@ -36,7 +36,6 @@ namespace Engines.Control
                 {
                     _currentPlayerNode = playerNode;
                 }
-                playerNode.movementControlComponent.movementInput.NotifyOnValueSet(MovementInputChange);
             }
         }
 
@@ -49,7 +48,6 @@ namespace Engines.Control
                 {
                     _currentPlayerNode = null;
                 }
-                playerNode.movementControlComponent.movementInput.StopNotify(MovementInputChange);
             }
         }
 
@@ -58,27 +56,27 @@ namespace Engines.Control
          */
         void Tick (float deltaTime)
         {
-            if (_currentPlayerNode == null) { return; }
-
-            Vector2 input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-            if (input != _currentPlayerNode.movementControlComponent.movementInput.value)
+            // If we actually have a current player (so we're a client or a host) then movement inputs should be both stored
+            // and sent to the server.
+            if (_currentPlayerNode != null)
             {
-                _currentPlayerNode.movementControlComponent.CmdSetMovementInput(input);
-                _currentPlayerNode.movementControlComponent.movementInput.value = input;
+                Vector2 input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+                if (input != _currentPlayerNode.movementControlComponent.movementInput)
+                {
+                    _currentPlayerNode.movementControlComponent.CmdSetMovementInput(input);
+                    _currentPlayerNode.movementControlComponent.movementInput = input;
+                }
             }
-        }
 
-        /**
-         * When the movement input for a player control changes, check it against the target speed and then apply it.
-         */
-        void MovementInputChange (int ID, Vector2 newMovement)
-        {
-            PlayerControlledMovementNode controlTarget = GetActiveBodyNodeForPlayer(nodesDB.QueryNode<PlayerMovementControlNode>(ID));
-            if (controlTarget == null) { return; }
-
-            Debug.Log("Movement input change detected! Changed to: " + newMovement.ToString());
-            
-            controlTarget.movementComponent.movement = newMovement.normalized * controlTarget.canMoveComponent.speed;
+            // Read out stored inputs and apply them for each Player and the Body they currently control, if relevant.
+            foreach (PlayerMovementControlNode playerNode in nodesDB.QueryNodes<PlayerMovementControlNode>())
+            {
+                PlayerControlledMovementNode bodyNode = GetActiveBodyNodeForPlayer(playerNode);
+                if (bodyNode != null)
+                {
+                    bodyNode.movementComponent.movement = playerNode.movementControlComponent.movementInput.normalized * bodyNode.canMoveComponent.speed;
+                }
+            }
         }
 
         /**
@@ -86,7 +84,7 @@ namespace Engines.Control
          */
         PlayerControlledMovementNode GetActiveBodyNodeForPlayer (PlayerMovementControlNode playerNode)
         {
-            if (playerNode != null && playerNode.movementControlComponent.active && playerNode.playerComponent.currentBody != null)
+            if (playerNode != null && playerNode.movementControlComponent.listening && playerNode.playerComponent.currentBody != null)
             {
                 return nodesDB.QueryNode<PlayerControlledMovementNode>(playerNode.playerComponent.currentBody.GetInstanceID());
             }

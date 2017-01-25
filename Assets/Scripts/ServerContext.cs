@@ -91,7 +91,7 @@ public class Server : ICompositionRoot
         manager.identity = player.GetComponent<NetworkIdentity>();
         manager.currentBody = _testRobot;
         MovementControl movementControl = player.GetComponent<MovementControl>();
-        movementControl.active = true;
+        movementControl.listening = true;
         _entityFactory.BuildEntity(player.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(player));
         Debug.Log(player);
         return player;
