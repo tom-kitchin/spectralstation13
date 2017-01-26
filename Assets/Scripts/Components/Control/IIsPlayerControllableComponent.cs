@@ -1,7 +1,9 @@
-﻿namespace Components.Control
+﻿using UnityEngine;
+
+namespace Components.Control
 {
     public interface IIsPlayerControllableComponent : IComponent
     {
-        bool currentlyControlled { get; set; }
+        GameObject controllingPlayer { get; set; }
     }
 }

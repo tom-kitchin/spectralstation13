@@ -5,6 +5,6 @@ namespace Nodes.Networking
 {
     public class NetworkEntityNode : NodeWithID
     {
-        INetworkEntityComponent networkEntityComponent;
+        public INetworkEntityComponent networkEntityComponent;
     }
 }

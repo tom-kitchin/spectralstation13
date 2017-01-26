@@ -9,6 +9,7 @@ using Config.Parsers;
 using Config.Serializers;
 using Factories;
 using Engines;
+using Engines.Control;
 using Engines.Motion;
 
 /*
@@ -66,6 +67,7 @@ public class Client : ICompositionRoot
         ConfigFactorySpawnManager.Initialize(_factory, _entityFactory, _config);
 
         // Start engines.
+        AddEngine(new MovementControlEngine());
         AddEngine(new MovementEngine());
         
         if (_onSetupComplete != null) { _onSetupComplete(); }

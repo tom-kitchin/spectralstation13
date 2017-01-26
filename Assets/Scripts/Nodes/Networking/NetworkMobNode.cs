@@ -5,7 +5,7 @@ namespace Nodes.Networking
 {
     public class NetworkMobNode : NodeWithID
     {
-        INetworkEntityComponent networkEntityComponent;
-        INetworkTransformComponent networkTransformComponent;
+        public INetworkEntityComponent networkEntityComponent;
+        public INetworkTransformComponent networkTransformComponent;
     }
 }

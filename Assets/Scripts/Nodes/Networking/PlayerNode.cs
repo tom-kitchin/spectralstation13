@@ -5,7 +5,7 @@ namespace Nodes.Networking
 {
     public class PlayerNode : NodeWithID
     {
-        public IPlayerComponent clientComponent;
+        public IPlayerComponent playerComponent;
         public INetworkEntityComponent networkEntityComponent;
     }
 }

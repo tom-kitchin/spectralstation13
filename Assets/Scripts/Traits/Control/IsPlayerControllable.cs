@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Svelto.ECS;
 using Config;
 
 namespace Traits
@@ -7,8 +8,7 @@ namespace Traits
     {
         public override void BuildAndAttach (ref GameObject go, ref WorldConfig config)
         {
-            var isPlayerControllableImplementer = go.AddComponent<Implementers.Control.IsPlayerControllable>();
-            isPlayerControllableImplementer.currentlyControlled = false;
+            go.AddComponent<Implementers.Control.IsPlayerControllable>();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine.Networking;
+﻿using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Components.Networking
 {
@@ -7,5 +8,7 @@ namespace Components.Networking
         string nickname { get; }
         int playerControllerId { get; }
         NetworkConnection connection { get; }
+        GameObject currentBody { get; set; }
+        NetworkIdentity identity { get; }
     }
 }

@@ -12,7 +12,9 @@ using Config.Parsers;
 using Config.Serializers;
 using Factories;
 using Implementers.Networking;
+using Implementers.Control;
 using Engines;
+using Engines.Control;
 using Engines.Motion;
 
 /*
@@ -45,6 +47,7 @@ public class Server : ICompositionRoot
         _playerPrefab = Resources.Load<GameObject>("Prefabs/PlayerManager");
 
         // Start engines.
+        AddEngine(new MovementControlEngine());
         AddEngine(new MovementEngine());
         
         if (_onSetupComplete != null) { _onSetupComplete(); }
@@ -66,13 +69,13 @@ public class Server : ICompositionRoot
     void OnServerStart ()
     {
         // Build initial entities.
-        GameObject testRobot = _factory.Build("robot");
-        _entityFactory.BuildEntity(testRobot.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(testRobot));
-        SpectreServer.Spawn(testRobot);
+        _testRobot = _factory.Build("robot");
+        _entityFactory.BuildEntity(_testRobot.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(_testRobot));
+        SpectreServer.Spawn(_testRobot);
 
         // Testing bullshit
         TestMoveControls tester = GameObject.FindObjectOfType<TestMoveControls>();
-        tester.testEntity = testRobot;
+        tester.testEntity = _testRobot;
     }
 
     /**
@@ -85,8 +88,10 @@ public class Server : ICompositionRoot
         GameObject player = _factory.Build(_playerPrefab);
         PlayerManager manager = player.GetComponent<PlayerManager>();
         manager.connection = conn;
-        manager.playerControllerId = message.playerControllerId;
         manager.identity = player.GetComponent<NetworkIdentity>();
+        manager.currentBody = _testRobot;
+        MovementControl movementControl = player.GetComponent<MovementControl>();
+        movementControl.listening = true;
         _entityFactory.BuildEntity(player.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(player));
         Debug.Log(player);
         return player;
@@ -130,6 +135,7 @@ public class Server : ICompositionRoot
     WorldConfig _config;
     event Action _onSetupComplete;
     GameObject _playerPrefab;
+    GameObject _testRobot;
 }
 
 /*

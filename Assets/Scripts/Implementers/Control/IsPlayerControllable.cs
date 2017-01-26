@@ -1,12 +1,14 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 using Components.Control;
 
 namespace Implementers.Control
 {
-    public class IsPlayerControllable : MonoBehaviour, IIsPlayerControllableComponent
+    public class IsPlayerControllable : NetworkBehaviour, IIsPlayerControllableComponent
     {
-        public bool currentlyControlled;
+        [SyncVar]
+        GameObject controllingPlayer;
 
-        bool IIsPlayerControllableComponent.currentlyControlled { get { return currentlyControlled; } set { currentlyControlled = value; } }
+        GameObject IIsPlayerControllableComponent.controllingPlayer { get { return controllingPlayer; } set { controllingPlayer = value; } }
     }
 }
