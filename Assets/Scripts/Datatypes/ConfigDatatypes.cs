@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using Config;
 using Traits;
 
-namespace Config.Datatypes
+namespace Datatypes.Config
 {
     public class EntityTypeData : INetworkSpawnable
     {

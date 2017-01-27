@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
+using Svelto.ECS;
 
 namespace Components.Networking
 {
@@ -9,6 +10,7 @@ namespace Components.Networking
         int playerControllerId { get; }
         NetworkConnection connection { get; }
         GameObject currentBody { get; set; }
+        DispatchOnChange<GameObject> currentBodyDispatcher { get; }
         NetworkIdentity identity { get; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Config.Parsers;
 using Config.Serializers;
-using Config.Datatypes;
+using Datatypes.Config;
 
 namespace Config.Loaders
 {

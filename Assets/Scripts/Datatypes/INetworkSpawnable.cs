@@ -1,6 +1,6 @@
 ﻿using UnityEngine.Networking;
 
-namespace Config
+namespace Datatypes.Config
 {
     public interface INetworkSpawnable
     {

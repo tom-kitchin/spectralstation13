@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 using Traits;
 using System;
 
-namespace Config.Datatypes.Serializable
+namespace Datatypes.Config.Serializable
 {
     [Serializable]
     public class EntityTypeData : INetworkSpawnable

@@ -1,4 +1,5 @@
 ﻿using UnityEngine.Networking;
+using Svelto.Tasks;
 
 namespace Services.Networking
 {
@@ -7,8 +8,6 @@ namespace Services.Networking
      */
     public static class SpectreConnectionConfig
     {
-        static ConnectionConfig _connectionConfig;
-
         public static ConnectionConfig connectionConfig {
             get {
                 if (_connectionConfig == null)
@@ -21,5 +20,18 @@ namespace Services.Networking
                 return _connectionConfig;
             }
         }
+        static ConnectionConfig _connectionConfig;
+
+        public static float heartBeat;
+        public static WaitForSecondsEnumerator heartbeatEnumerator {
+            get {
+                if (_heartbeatEnumerator == null)
+                {
+                    _heartbeatEnumerator = new WaitForSecondsEnumerator(0.05f);
+                }
+                return _heartbeatEnumerator;
+            }
+        }
+        static WaitForSecondsEnumerator _heartbeatEnumerator;
     }
 }

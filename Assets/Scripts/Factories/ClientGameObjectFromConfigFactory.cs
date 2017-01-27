@@ -2,7 +2,7 @@
 using UnityEngine.Networking;
 using Svelto.Factories;
 using Config;
-using Config.Datatypes;
+using Datatypes.Config;
 using Traits;
 using Traits.Networking;
 using EntityDescriptors;

@@ -12,6 +12,7 @@ namespace Implementers.Control
 
         Vector2 movementInput;
         
+        
         [Command]
         void CmdSetMovementInput (Vector2 newMovementInput)
         {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Config.Datatypes;
+using Datatypes.Config;
 using Traits;
 
 namespace Config.Parsers

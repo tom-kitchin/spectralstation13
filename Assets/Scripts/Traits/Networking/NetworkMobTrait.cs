@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using Config;
+using Implementers.Networking;
 
 namespace Traits.Networking
 {
@@ -10,13 +11,9 @@ namespace Traits.Networking
 
         public override void BuildAndAttach (ref GameObject go, ref WorldConfig config)
         {
-            var networkIdentity = go.AddComponent<NetworkIdentity>();
-            var networkTransform = go.AddComponent<NetworkTransform>();
-            networkTransform.transformSyncMode = NetworkTransform.TransformSyncMode.SyncTransform;
-            networkTransform.syncRotationAxis = NetworkTransform.AxisSyncMode.AxisZ;
-            var mobImplementer = go.AddComponent<Implementers.Networking.NetworkMob>();
-            mobImplementer.identity = networkIdentity;
-            mobImplementer.netTransform = networkTransform;
+            go.AddComponent<NetworkIdentity>();
+            var networkPosition = go.AddComponent<NetworkPosition>();
+            networkPosition._transform = go.transform;
         }
     }
 }

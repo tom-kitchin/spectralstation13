@@ -6,6 +6,6 @@ namespace Nodes.Networking
     public class NetworkMobNode : NodeWithID
     {
         public INetworkEntityComponent networkEntityComponent;
-        public INetworkTransformComponent networkTransformComponent;
+        public INetworkPositionComponent networkPositionComponent;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Config.Datatypes;
+using Datatypes.Config;
 using Traits;
 
 namespace Config.Parsers.Json.TraitDescriptorBuilders

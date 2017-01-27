@@ -90,6 +90,8 @@ public class Server : ICompositionRoot
         manager.connection = conn;
         manager.identity = player.GetComponent<NetworkIdentity>();
         manager.currentBody = _testRobot;
+        manager.currentBodyDispatcher = new DispatchOnChange<GameObject>(manager.GetInstanceID());
+        manager.currentBodyDispatcher.value = _testRobot;
         MovementControl movementControl = player.GetComponent<MovementControl>();
         movementControl.listening = true;
         _entityFactory.BuildEntity(player.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(player));

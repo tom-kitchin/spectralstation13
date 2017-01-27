@@ -2,7 +2,7 @@
 using UnityEngine;
 using Config.Parsers;
 using Config.Loaders.Helpers;
-using Config.Datatypes;
+using Datatypes.Config;
 
 namespace Config.Loaders
 {

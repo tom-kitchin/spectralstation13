@@ -2,7 +2,7 @@
 using UnityEngine;
 using Svelto.Factories;
 using Config;
-using Config.Datatypes;
+using Datatypes.Config;
 using Traits;
 using EntityDescriptors;
 

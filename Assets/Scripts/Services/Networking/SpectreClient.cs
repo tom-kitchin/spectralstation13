@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 using UnityEngine;
@@ -172,9 +171,9 @@ namespace Services.Networking
             Debug.Log("SpectreClient:OnClientScene");
 
             if (onClientScene != null) { onClientScene(netMsg); }
-            
+
             StringMessage message = netMsg.ReadMessage<StringMessage>();
-            
+
             if (networkClient.isConnected && !NetworkServer.active)
             {
                 // We'd usually change scene here, but we can worry about implementing that later.
@@ -187,10 +186,11 @@ namespace Services.Networking
             Debug.Log("SpectreClient:OnConfigChecksum");
 
             if (onConfigChecksum != null) { onConfigChecksum(netMsg); }
-            
+
             _checksum = netMsg.reader.ReadBytesAndSize();
             string checksumString = ChecksumToString(_checksum);
-            if (File.Exists(filesystemHelper.GetMapCacheFilePath(checksumString))) {
+            if (File.Exists(filesystemHelper.GetMapCacheFilePath(checksumString)))
+            {
                 byte[] configData = File.ReadAllBytes(filesystemHelper.GetMapCacheFilePath(checksumString));
                 if (ChecksumCheckData(configData, _checksum))
                 {
@@ -247,7 +247,7 @@ namespace Services.Networking
                 Debug.LogError("Received ConfigDataPacket which has already been received, packet number " + configPacket.packetNumber);
                 return;
             }
-            
+
             _configLoadInProgressCollection[configPacket.packetNumber] = configPacket;
         }
 
@@ -295,7 +295,7 @@ namespace Services.Networking
 
             byte[] configData = LargeDataHelper.CombinePackets(_configLoadInProgressCollection);
             _configLoadInProgressCollection = null;
-            
+
             if (!ChecksumCheckData(configData, _checksum))
             {
                 // Either our config data or our checksum is corrupted,

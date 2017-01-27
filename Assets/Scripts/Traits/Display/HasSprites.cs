@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using Config;
-using Config.Datatypes;
+using Datatypes.Config;
 
 namespace Traits
 {

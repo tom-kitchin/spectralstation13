@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 using Svelto.ECS;
 using Svelto.Factories;
 using Config;
-using Config.Datatypes;
+using Datatypes.Config;
 using Services.EntityDescriptors;
 
 namespace Services.Networking
