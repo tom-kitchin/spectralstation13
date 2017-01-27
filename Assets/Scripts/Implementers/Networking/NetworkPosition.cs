@@ -10,7 +10,7 @@ namespace Implementers.Networking
     [NetworkSettings(channel = 1, sendInterval = 0.05f)]
     public class NetworkPosition : NetworkBehaviour, INetworkPositionComponent
     {
-        public SortedList<float, Position> positions;
+		public SortedList<double, Position> positions;
         public Transform _transform;
 
         [SyncVar(hook = "UpdatePositions")]
@@ -22,7 +22,8 @@ namespace Implementers.Networking
             positions.Add(latestPosition.timestamp, latestPositionBroadcast);
         }
 
-        SortedList<float, Position> INetworkPositionComponent.positions { get { return positions; } }
+		Position INetworkPositionComponent.latestPositionBroadcast { set { latestPositionBroadcast = value; } }
+        SortedList<double, Position> INetworkPositionComponent.positions { get { return positions; } }
         Transform INetworkPositionComponent.transform { get { return _transform; } }
     }
 }

@@ -113,6 +113,8 @@ namespace Services.Networking
             Debug.Log("SpectreServer:OnServerConnect");
 
             if (onServerConnect != null) { onServerConnect(netMsg); }
+
+			netMsg.conn.Send(SpectreMsgType.SyncServerTime, new ServerTimeMessage());
         }
 
         static void OnServerDisconnect (NetworkMessage netMsg)

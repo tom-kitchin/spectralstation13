@@ -4,9 +4,10 @@ using Datatypes.Networking;
 
 namespace Components.Networking
 {
-    public interface INetworkPositionComponent : IComponent
-    {
-        SortedList<float, Position> positions { get; }
-        Transform transform { get; } 
-    }
+	public interface INetworkPositionComponent : IComponent
+	{
+		Position latestPositionBroadcast { set; }
+		SortedList<double, Position> positions { get; }
+		Transform transform { get; }
+	}
 }
