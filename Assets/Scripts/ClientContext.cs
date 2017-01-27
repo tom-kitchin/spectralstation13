@@ -9,8 +9,9 @@ using Config.Parsers;
 using Config.Serializers;
 using Factories;
 using Engines;
-using Engines.Control;
-using Engines.Motion;
+using Engines.Client.Networking;
+using Engines.Client.Control;
+using Engines.General.Motion;
 
 /*
  * Main is the Application Composition Root.
@@ -66,7 +67,8 @@ public class Client : ICompositionRoot
         _factory = new ClientGameObjectFromConfigFactory(_config);
         ConfigFactorySpawnManager.Initialize(_factory, _entityFactory, _config);
 
-        // Start engines.
+		// Start engines.
+		AddEngine(new NPCPositionReplayEngine());
         AddEngine(new MovementControlEngine());
         AddEngine(new MovementEngine());
         

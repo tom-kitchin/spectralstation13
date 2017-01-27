@@ -4,7 +4,7 @@ using Svelto.ECS;
 using Svelto.Tasks;
 using Nodes.Control;
 
-namespace Engines.Control
+namespace Engines.Client.Control
 {
     public class MovementControlEngine : INodesEngine, ILateInitEngine, IQueryableNodeEngine
     {

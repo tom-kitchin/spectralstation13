@@ -7,7 +7,7 @@ using Services.Networking;
 using Nodes.Control;
 using Nodes.Networking;
 
-namespace Engines.Networking
+namespace Engines.Server.Networking
 {
 	public class NPCPositionUpdateEngine : INodesEngine, IQueryableNodeEngine, ILateInitEngine
 	{

@@ -7,7 +7,7 @@ using Datatypes.Networking;
 using Services.Networking;
 using Nodes.Networking;
 
-namespace Engines.Networking
+namespace Engines.Client.Networking
 {
 	/**
 	 * Clientside engine which moves all mobile entities except for the one the client controls

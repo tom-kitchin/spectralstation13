@@ -14,8 +14,8 @@ using Factories;
 using Implementers.Networking;
 using Implementers.Control;
 using Engines;
-using Engines.Control;
-using Engines.Motion;
+using Engines.Server.Networking;
+using Engines.General.Motion;
 
 /*
  * Main is the Application Composition Root.
@@ -46,8 +46,8 @@ public class Server : ICompositionRoot
         _factory = new NetworkGameObjectFromConfigFactory(_config);
         _playerPrefab = Resources.Load<GameObject>("Prefabs/PlayerManager");
 
-        // Start engines.
-        AddEngine(new MovementControlEngine());
+		// Start engines.
+		AddEngine(new NPCPositionUpdateEngine());
         AddEngine(new MovementEngine());
         
         if (_onSetupComplete != null) { _onSetupComplete(); }
