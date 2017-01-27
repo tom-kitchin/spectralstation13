@@ -72,7 +72,7 @@ namespace Engines.Client.Networking
 			{
 				if (_currentPlayerNode != null && _currentBodyID == node.ID) { continue; }
 
-				SortedList<double, Position> positions = node.networkPositionComponent.positions;
+				TruncatableSortedList<double, Position> positions = node.networkPositionComponent.positions;
 
 				// Do nothing if we don't have enough information to work.
 				// This should only really be the case for things which haven't moved since they were spawned.
@@ -86,7 +86,7 @@ namespace Engines.Client.Networking
 				int nextPositionIndex = -1;
 				for (int i = 0; i < node.networkPositionComponent.positions.Count; i++)
 				{
-					Position position = positions[i];
+					Position position = positions.Values[i];
 					if (position.timestamp > SpectreClient.serverTime)
 					{
 						nextPositionIndex = i;
@@ -97,7 +97,7 @@ namespace Engines.Client.Networking
 				// except the last one since we only need one previous entry.
 				if (nextPositionIndex == -1)
 				{
-					RemoveUntilIndex(positions, positions.Count - 1);
+					positions.RemoveUntilIndex(positions.Count - 1);
 					continue;
 				}
 
@@ -112,24 +112,17 @@ namespace Engines.Client.Networking
 				if (nextPositionIndex > 1)
 				{
 					// Get rid of all except the one position entry before our next one.
-					RemoveUntilIndex(positions, nextPositionIndex - 1);
+					positions.RemoveUntilIndex(nextPositionIndex - 1);
 				}
 
 				// Finally we're ready to work. Interpolate the object between the next and previous locations
 				// based on timestamps and the current server time.
-				double t = (SpectreClient.serverTime - positions[0].timestamp) / (positions[1].timestamp - positions[0].timestamp);
-				node.networkPositionComponent.transform.position = Vector2.Lerp(positions[0].position, positions[1].position, (float)t);
+				Position prevPosition = positions.Values[0];
+				Position nextPosition = positions.Values[1];
+				double t = (SpectreClient.serverTime - prevPosition.timestamp) / (nextPosition.timestamp - prevPosition.timestamp);
+				node.networkPositionComponent.transform.position = Vector2.Lerp(prevPosition.position, nextPosition.position, (float)t);
 			}
         }
-
-		void RemoveUntilIndex (SortedList<double, Position> list, int index)
-		{
-			for (int i = 0; i < index; i++)
-			{
-				// Don't forget it's a sorted list, so removing 0 bumps everything else back!
-				list.RemoveAt(0);
-			}
-		}
 
         void CurrentBodyChanged (int ID, GameObject newBody)
         {

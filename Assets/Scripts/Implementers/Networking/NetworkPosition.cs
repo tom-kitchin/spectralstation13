@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
 using Datatypes.Networking;
 using Components.Networking;
@@ -10,7 +9,7 @@ namespace Implementers.Networking
     [NetworkSettings(channel = 1, sendInterval = 0.05f)]
     public class NetworkPosition : NetworkBehaviour, INetworkPositionComponent
     {
-		public SortedList<double, Position> positions;
+		public TruncatableSortedList<double, Position> positions;
         public Transform _transform;
 
         [SyncVar(hook = "UpdatePositions")]
@@ -23,7 +22,7 @@ namespace Implementers.Networking
         }
 
 		Position INetworkPositionComponent.latestPositionBroadcast { set { latestPositionBroadcast = value; } }
-        SortedList<double, Position> INetworkPositionComponent.positions { get { return positions; } }
+		TruncatableSortedList<double, Position> INetworkPositionComponent.positions { get { return positions; } }
         Transform INetworkPositionComponent.transform { get { return _transform; } }
     }
 }
