@@ -47,6 +47,7 @@ public class Server : ICompositionRoot
         _playerPrefab = Resources.Load<GameObject>("Prefabs/PlayerManager");
 
 		// Start engines.
+		AddEngine(new TimeSyncEngine());
 		AddEngine(new NPCPositionUpdateEngine());
         AddEngine(new MovementEngine());
         

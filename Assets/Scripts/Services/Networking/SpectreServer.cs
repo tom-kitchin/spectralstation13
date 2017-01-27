@@ -52,6 +52,11 @@ namespace Services.Networking
             NetworkServer.Spawn(go);
         }
 
+		public static void SyncTimeToAll ()
+		{
+			NetworkServer.SendToAll(SpectreMsgType.SyncServerTime, new ServerTimeMessage());
+		}
+
         static void ConfigureServer ()
         {
             Application.runInBackground = true;
@@ -92,19 +97,19 @@ namespace Services.Networking
             }
             conn.Send(finishedMsgType, new LargeDataInfoMessage(packets[0].totalPackets, packets[0].totalSize));
         }
-        
-        static void PrepareConfigForTransmission ()
-        {
-            if (_serializer == null)
-            {
-                throw new NullReferenceException("Must set a serializer for config transmission handling.");
-            }
 
-            _serializedConfig = _serializer.Serialize();
+		static void PrepareConfigForTransmission()
+		{
+			if (_serializer == null)
+			{
+				throw new NullReferenceException("Must set a serializer for config transmission handling.");
+			}
 
-            SHA256 checksumHasher = SHA256Managed.Create();
-            _configChecksum = checksumHasher.ComputeHash(_serializedConfig);
-        }
+			_serializedConfig = _serializer.Serialize();
+
+			SHA256 checksumHasher = SHA256Managed.Create();
+			_configChecksum = checksumHasher.ComputeHash(_serializedConfig);
+		}
 
         /* SERVER MESSAGE HANDLERS */
 
