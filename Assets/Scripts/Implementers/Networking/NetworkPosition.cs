@@ -2,14 +2,14 @@
 using UnityEngine.Networking;
 using Datatypes.Networking;
 using Components.Networking;
+using Services.Networking;
 
 namespace Implementers.Networking
 {
-    // Channel 1: Unreliable
-    [NetworkSettings(channel = 1, sendInterval = 0.05f)]
+	[NetworkSettings(channel = (int)SpectreConnectionConfig.Channels.Unreliable, sendInterval = 0.05f)]
     public class NetworkPosition : NetworkBehaviour, INetworkPositionComponent
     {
-		public TruncatableSortedList<double, Position> positions;
+		public TimestampedList<Position> positions;
         public Transform _transform;
 
         [SyncVar(hook = "UpdatePositions")]
@@ -22,7 +22,7 @@ namespace Implementers.Networking
         }
 
 		Position INetworkPositionComponent.latestPositionBroadcast { set { latestPositionBroadcast = value; } }
-		TruncatableSortedList<double, Position> INetworkPositionComponent.positions { get { return positions; } }
+		TimestampedList<Position> INetworkPositionComponent.positions { get { return positions; } }
         Transform INetworkPositionComponent.transform { get { return _transform; } }
     }
 }

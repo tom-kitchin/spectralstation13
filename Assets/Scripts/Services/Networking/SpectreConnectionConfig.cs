@@ -8,6 +8,11 @@ namespace Services.Networking
      */
     public static class SpectreConnectionConfig
     {
+		public enum Channels {
+			ReliableSequenced = 0,
+			Unreliable = 1
+		}
+
         public static ConnectionConfig connectionConfig {
             get {
                 if (_connectionConfig == null)

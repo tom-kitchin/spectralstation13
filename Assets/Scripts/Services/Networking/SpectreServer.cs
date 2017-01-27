@@ -54,7 +54,11 @@ namespace Services.Networking
 
 		public static void SyncTimeToAll ()
 		{
-			NetworkServer.SendToAll(SpectreMsgType.SyncServerTime, new ServerTimeMessage());
+			NetworkServer.SendByChannelToAll(
+				SpectreMsgType.SyncServerTime,
+				new ServerTimeMessage(),
+				(int)SpectreConnectionConfig.Channels.Unreliable
+			);
 		}
 
         static void ConfigureServer ()

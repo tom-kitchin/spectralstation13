@@ -2,11 +2,11 @@
 using UnityEngine.Networking;
 using Svelto.ECS;
 using Components.Networking;
+using Services.Networking;
 
 namespace Implementers.Networking
 {
-    // Channel 0: Reliable Ordered
-    [NetworkSettings(channel = 0, sendInterval = 0.05f)]
+	[NetworkSettings(channel = (int)SpectreConnectionConfig.Channels.ReliableSequenced, sendInterval = 0.05f)]
     public class PlayerManager : NetworkBehaviour, IPlayerComponent, INetworkEntityComponent
     {
         public string nickname;

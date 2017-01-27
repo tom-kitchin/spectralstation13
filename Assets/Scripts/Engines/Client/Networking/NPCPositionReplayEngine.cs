@@ -72,53 +72,32 @@ namespace Engines.Client.Networking
 			{
 				if (_currentPlayerNode != null && _currentBodyID == node.ID) { continue; }
 
-				TruncatableSortedList<double, Position> positions = node.networkPositionComponent.positions;
+				TimestampedList<Position> positions = node.networkPositionComponent.positions;
 
-				// Do nothing if we don't have enough information to work.
+				// Do nothing if we don't have enough information to work with.
 				// This should only really be the case for things which haven't moved since they were spawned.
 				if (positions.Count < 2)
 				{
 					continue;
 				}
 
+				// Clean up the list, throwing away entries earlier than the one immediately before now.
+				positions.RemoveOutdatedTimestamps(SpectreClient.serverTime);
+
 				// Seek through our position list for a position with a timestamp after now.
-				// It's a SortedList by timestamp so it's guaranteed to be the right one.
-				int nextPositionIndex = -1;
-				for (int i = 0; i < node.networkPositionComponent.positions.Count; i++)
-				{
-					Position position = positions.Values[i];
-					if (position.timestamp > SpectreClient.serverTime)
-					{
-						nextPositionIndex = i;
-					}
-				}
+				int nextPositionIndex = positions.GetIndexAfterTimestamp(SpectreClient.serverTime);
 
-				// If we have no next position then we're very confused, might as well just remove all entries
-				// except the last one since we only need one previous entry.
-				if (nextPositionIndex == -1)
-				{
-					positions.RemoveUntilIndex(positions.Count - 1);
-					continue;
-				}
-
-				// If our next position is also our first known position, we can't really interpolate, so we'll
-				// just have to wait until time ticks past this point. 
-				if (nextPositionIndex == 0)
+				// If our next position is not the second entry then after cleanup we don't have enough
+				// to work with - either we have no previous entry or no next entry.
+				if (nextPositionIndex != 1)
 				{
 					continue;
-				}
-
-				// If our next position is not the second item we're storing old positions we don't need.
-				if (nextPositionIndex > 1)
-				{
-					// Get rid of all except the one position entry before our next one.
-					positions.RemoveUntilIndex(nextPositionIndex - 1);
 				}
 
 				// Finally we're ready to work. Interpolate the object between the next and previous locations
 				// based on timestamps and the current server time.
-				Position prevPosition = positions.Values[0];
-				Position nextPosition = positions.Values[1];
+				Position prevPosition = positions.GetByIndex(0);
+				Position nextPosition = positions.GetByIndex(1);
 				double t = (SpectreClient.serverTime - prevPosition.timestamp) / (nextPosition.timestamp - prevPosition.timestamp);
 				node.networkPositionComponent.transform.position = Vector2.Lerp(prevPosition.position, nextPosition.position, (float)t);
 			}

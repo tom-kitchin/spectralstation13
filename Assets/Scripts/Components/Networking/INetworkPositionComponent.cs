@@ -6,7 +6,7 @@ namespace Components.Networking
 	public interface INetworkPositionComponent : IComponent
 	{
 		Position latestPositionBroadcast { set; }
-		TruncatableSortedList<double, Position> positions { get; }
+		TimestampedList<Position> positions { get; }
 		Transform transform { get; }
 	}
 }
