@@ -31,14 +31,18 @@ namespace Engines.Server.Networking
 
         IEnumerator Heartbeat ()
         {
-            yield return SpectreConnectionConfig.heartbeatEnumerator;
-            HeartbeatTick();
+            while (true)
+            {
+                yield return SpectreConnectionConfig.heartbeatEnumerator;
+                HeartbeatTick();
+            }
         }
 
         /**
 		 * On the heartbeat, go through all mobile entities which are NOT currently player controlled,
 		 * and update their reported position for clients taking into account the client delay.
 		 * Player controlled entities depend on client input so we don't do that here.
+         * If it hasn't moved then we don't need to do anything.
 		 */
         void HeartbeatTick ()
         {
@@ -49,10 +53,12 @@ namespace Engines.Server.Networking
                     if (nodesDB.QueryNode<PlayerControllableNode>(node.ID)
                         .isPlayerControllableComponent.controllingPlayer == null)
                     {
+                        Debug.Log("Heartbeat from null controllingPlayer");
                         PushDelayedPositionToNetworkPosition(node);
                     }
                 } catch (Exception)
                 {
+                    Debug.Log("Heartbeat from exception");
                     // Frustratingly nodesDB throws standard Exception when it can't find a node. Blame Svelto.
                     PushDelayedPositionToNetworkPosition(node);
                 }
@@ -68,6 +74,7 @@ namespace Engines.Server.Networking
             position.position = node.networkPositionComponent.transform.position;
             position.timestamp = Network.time + SpectreConnectionConfig.clientDelay;
             node.networkPositionComponent.latestPositionBroadcast = position;
+            Debug.Log("Updated position of " + node.ID + " to " + position.position.ToString() + " with timestamp " + position.timestamp.ToString());
         }
     }
 }

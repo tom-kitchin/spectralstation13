@@ -14,6 +14,7 @@ using Factories;
 using Implementers.Networking;
 using Implementers.Control;
 using Engines;
+using Engines.Server.Control;
 using Engines.Server.Networking;
 using Engines.General.Motion;
 
@@ -48,6 +49,7 @@ public class Server : ICompositionRoot
 
         // Start engines.
         AddEngine(new TimeSyncEngine());
+        AddEngine(new PlayerBodyCreationEngine(_factory, _entityFactory));
         AddEngine(new NPCPositionUpdateEngine());
         AddEngine(new MovementEngine());
 
@@ -70,13 +72,13 @@ public class Server : ICompositionRoot
     void OnServerStart ()
     {
         // Build initial entities.
-        _testRobot = _factory.Build("robot");
-        _entityFactory.BuildEntity(_testRobot.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(_testRobot));
-        SpectreServer.Spawn(_testRobot);
+        GameObject testRobot = _factory.Build("robot");
+        _entityFactory.BuildEntity(testRobot.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptor(testRobot));
+        SpectreServer.Spawn(testRobot);
 
         // Testing bullshit
         TestMoveControls tester = GameObject.FindObjectOfType<TestMoveControls>();
-        tester.testEntity = _testRobot;
+        tester.testEntity = testRobot;
     }
 
     /**
@@ -90,13 +92,10 @@ public class Server : ICompositionRoot
         PlayerManager manager = player.GetComponent<PlayerManager>();
         manager.connection = conn;
         manager.identity = player.GetComponent<NetworkIdentity>();
-        manager.currentBody = _testRobot;
         manager.currentBodyDispatcher = new DispatchOnChange<GameObject>(manager.GetInstanceID());
-        manager.currentBodyDispatcher.value = _testRobot;
         MovementControl movementControl = player.GetComponent<MovementControl>();
         movementControl.listening = true;
-        _entityFactory.BuildEntity(player.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(player));
-        Debug.Log(player);
+        _entityFactory.BuildEntity(player.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptor(player));
         return player;
     }
 
@@ -138,7 +137,6 @@ public class Server : ICompositionRoot
     WorldConfig _config;
     event Action _onSetupComplete;
     GameObject _playerPrefab;
-    GameObject _testRobot;
 }
 
 /*

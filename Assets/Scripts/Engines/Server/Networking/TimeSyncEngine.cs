@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using UnityEngine;
 using Svelto.ECS;
 using Services.Networking;
 
@@ -16,8 +17,11 @@ namespace Engines.Server.Networking
 
         IEnumerator Heartbeat ()
         {
-            yield return SpectreConnectionConfig.heartbeatEnumerator;
-            HeartbeatTick();
+            while (true)
+            {
+                yield return SpectreConnectionConfig.heartbeatEnumerator;
+                HeartbeatTick();
+            }
         }
 
         void HeartbeatTick ()

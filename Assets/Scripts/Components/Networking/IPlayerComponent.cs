@@ -10,6 +10,7 @@ namespace Components.Networking
         int playerControllerId { get; }
         NetworkConnection connection { get; }
         GameObject currentBody { get; set; }
+        GameObject manager { get; }
         DispatchOnChange<GameObject> currentBodyDispatcher { get; }
         NetworkIdentity identity { get; }
     }

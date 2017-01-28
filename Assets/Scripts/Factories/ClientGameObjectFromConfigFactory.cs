@@ -5,7 +5,6 @@ using Config;
 using Datatypes.Config;
 using Traits;
 using Traits.Networking;
-using EntityDescriptors;
 
 namespace Factories
 {

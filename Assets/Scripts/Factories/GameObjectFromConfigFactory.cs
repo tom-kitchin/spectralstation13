@@ -4,7 +4,6 @@ using Svelto.Factories;
 using Config;
 using Datatypes.Config;
 using Traits;
-using EntityDescriptors;
 
 namespace Factories
 {

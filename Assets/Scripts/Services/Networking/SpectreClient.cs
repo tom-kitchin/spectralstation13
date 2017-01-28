@@ -328,6 +328,7 @@ namespace Services.Networking
             ServerTimeMessage message = netMsg.ReadMessage<ServerTimeMessage>();
             double latency = networkClient.GetRTT() / 1000d; // ms to s
             _serverTimeDifference = Network.time - message.timestamp - latency;
+            Debug.Log("NT:" + Network.time.ToString() + ", MT:" + message.timestamp.ToString() + ", LT:" + latency.ToString());
         }
     }
 

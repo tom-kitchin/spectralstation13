@@ -12,6 +12,15 @@ namespace Datatypes.Networking
     public class TimestampedList<TValue> : SortedList<double, TValue>
     {
         /**
+         * Get the most recent entry in the list, i.e., with highest value timestamp.
+         */
+        public TValue Last {
+            get {
+                return Values[Count - 1];
+            }
+        }
+
+        /**
 		 * Remove every entry in the list before the given index.
 		 */
         public void RemoveUntilIndex (int index)

@@ -39,7 +39,7 @@ namespace Services.Networking
             Debug.Log("Spawning PlayerManager player entity.");
             GameObject go = _factory.Build(_playerPrefab);
             go.transform.position = position;
-            _entityFactory.BuildEntity(go.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(go));
+            _entityFactory.BuildEntity(go.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptor(go));
             return go;
         }
 
@@ -48,7 +48,7 @@ namespace Services.Networking
             Debug.Log("Spawning " + id.ToString());
             GameObject go = _factory.Build(_entityTypeByNetworkHashLookup[id]);
             go.transform.position = position;
-            _entityFactory.BuildEntity(go.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptorForGameObject(go));
+            _entityFactory.BuildEntity(go.GetInstanceID(), EntityDescriptorBuilder.BuildEntityDescriptor(go));
             return go;
         }
 

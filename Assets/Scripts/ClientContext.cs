@@ -64,13 +64,13 @@ public class Client : ICompositionRoot
     void SetupEnginesAndComponents ()
     {
         // Load entity and map data.
-        _factory = new ClientGameObjectFromConfigFactory(_config);
+        _factory = new NetworkGameObjectFromConfigFactory(_config);
         ConfigFactorySpawnManager.Initialize(_factory, _entityFactory, _config);
 
         // Start engines.
         AddEngine(new NPCPositionReplayEngine());
         AddEngine(new MovementControlEngine());
-        AddEngine(new MovementEngine());
+        //AddEngine(new MovementEngine());
 
         if (_onSetupComplete != null) { _onSetupComplete(); }
 

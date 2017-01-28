@@ -5,7 +5,6 @@ using Config;
 using Datatypes.Config;
 using Traits;
 using Traits.Networking;
-using EntityDescriptors;
 
 namespace Factories
 {
@@ -16,6 +15,7 @@ namespace Factories
         public new GameObject Build (string type)
         {
             GameObject entity = new GameObject(type);
+            new NetworkEntityTrait().BuildAndAttach(ref entity, ref _config);
             new NetworkMobTrait().BuildAndAttach(ref entity, ref _config);
             EntityTypeData entityType = _config.entityTypes[type];
             foreach (Trait trait in entityType.traits)

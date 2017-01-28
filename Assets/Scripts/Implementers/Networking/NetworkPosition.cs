@@ -13,12 +13,19 @@ namespace Implementers.Networking
         public Transform _transform;
 
         [SyncVar(hook = "UpdatePositions")]
-        Position latestPositionBroadcast;
+        public Position latestPositionBroadcast;
 
         [ClientCallback]
         void UpdatePositions (Position latestPosition)
         {
-            positions.Add(latestPosition.timestamp, latestPositionBroadcast);
+            try
+            {
+                positions.Add(latestPosition.timestamp, latestPosition);
+                latestPositionBroadcast = latestPosition;
+            } catch (System.ArgumentException)
+            {
+                Debug.LogError("Already have this key? Timestamp: " + latestPosition.timestamp.ToString() + ", position: " + latestPosition.position.ToString() + ", previous was: " + positions[latestPosition.timestamp].position.ToString() + ", server time is " + SpectreClient.serverTime.ToString());
+            }
         }
 
         Position INetworkPositionComponent.latestPositionBroadcast { set { latestPositionBroadcast = value; } }

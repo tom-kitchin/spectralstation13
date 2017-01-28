@@ -12,7 +12,7 @@ namespace Services.EntityDescriptors
      */
     public static class EntityDescriptorBuilder
     {
-        public static EntityDescriptor BuildEntityDescriptorForGameObject(GameObject go)
+        public static EntityDescriptor BuildEntityDescriptor(GameObject go)
         {
             return new DynamicEntityDescriptor(go.GetComponents<IComponent>());
         }

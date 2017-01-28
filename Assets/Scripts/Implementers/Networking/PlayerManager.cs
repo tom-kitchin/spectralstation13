@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using Svelto.ECS;
+using Implementers.Control;
 using Components.Networking;
 using Services.Networking;
 
@@ -19,6 +20,7 @@ namespace Implementers.Networking
         [ClientCallback]
         void ChangeCurrentBody (GameObject newBody)
         {
+            currentBody = newBody;
             currentBodyDispatcher.value = newBody;
         }
 
@@ -29,5 +31,15 @@ namespace Implementers.Networking
         GameObject IPlayerComponent.currentBody { get { return currentBody; } set { currentBody = value; currentBodyDispatcher.value = value; } }
         DispatchOnChange<GameObject> IPlayerComponent.currentBodyDispatcher { get { return currentBodyDispatcher; } }
         NetworkIdentity IPlayerComponent.identity { get { return identity; } }
+        GameObject IPlayerComponent.manager { get { return gameObject; } }
+
+        void Start ()
+        {
+            if (currentBodyDispatcher == null)
+            {
+                currentBodyDispatcher = new DispatchOnChange<GameObject>(GetInstanceID());
+                currentBodyDispatcher.value = currentBody;
+            }
+        } 
     }
 }

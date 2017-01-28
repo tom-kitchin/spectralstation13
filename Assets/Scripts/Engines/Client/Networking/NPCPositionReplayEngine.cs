@@ -72,6 +72,8 @@ namespace Engines.Client.Networking
             {
                 if (_currentPlayerNode != null && _currentBodyID == node.ID) { continue; }
 
+                double t = SpectreClient.serverTime;
+
                 TimestampedList<Position> positions = node.networkPositionComponent.positions;
 
                 // Do nothing if we don't have enough information to work with.
@@ -82,10 +84,10 @@ namespace Engines.Client.Networking
                 }
 
                 // Clean up the list, throwing away entries earlier than the one immediately before now.
-                positions.RemoveOutdatedTimestamps(SpectreClient.serverTime);
+                positions.RemoveOutdatedTimestamps(t);
 
                 // Seek through our position list for a position with a timestamp after now.
-                int nextPositionIndex = positions.GetIndexAfterTimestamp(SpectreClient.serverTime);
+                int nextPositionIndex = positions.GetIndexAfterTimestamp(t);
 
                 // If our next position is not the second entry then after cleanup we don't have enough
                 // to work with - either we have no previous entry or no next entry.
@@ -98,8 +100,8 @@ namespace Engines.Client.Networking
                 // based on timestamps and the current server time.
                 Position prevPosition = positions.GetByIndex(0);
                 Position nextPosition = positions.GetByIndex(1);
-                double t = (SpectreClient.serverTime - prevPosition.timestamp) / (nextPosition.timestamp - prevPosition.timestamp);
-                node.networkPositionComponent.transform.position = Vector2.Lerp(prevPosition.position, nextPosition.position, (float)t);
+                double normalizedT = (t - prevPosition.timestamp) / (nextPosition.timestamp - prevPosition.timestamp);
+                node.networkPositionComponent.transform.position = Vector2.Lerp(prevPosition.position, nextPosition.position, (float)normalizedT);
             }
         }
 
