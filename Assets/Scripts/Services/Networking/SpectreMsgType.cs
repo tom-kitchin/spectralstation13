@@ -10,9 +10,9 @@ namespace Services.Networking
         public static short ConfigDataFinished { get { return CustomMessage(4); } }
         public static short RequestConfigChecksum { get { return CustomMessage(5); } }
         public static short RequestConfigData { get { return CustomMessage(6); } }
-		public static short SyncServerTime { get { return CustomMessage(7); } }
+        public static short SyncServerTime { get { return CustomMessage(7); } }
 
-        static short CustomMessage(short num)
+        static short CustomMessage (short num)
         {
             return (short)(MsgType.Highest + num);
         }

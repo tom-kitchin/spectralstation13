@@ -9,7 +9,7 @@ using Nodes.Networking;
 
 namespace Engines.Client.Networking
 {
-	/**
+    /**
 	 * Clientside engine which moves all mobile entities except for the one the client controls
 	 * according to their movements reported from the server.
 	 * Obviously the one the client controls we want to handle differently.
@@ -19,15 +19,15 @@ namespace Engines.Client.Networking
     {
         public IEngineNodeDB nodesDB { set; private get; }
 
-		readonly Type[] _acceptedNodes = { typeof(PlayerNode), typeof(NetworkMobNode) };
+        readonly Type[] _acceptedNodes = { typeof(PlayerNode), typeof(NetworkMobNode) };
         public Type[] AcceptedNodes () { return _acceptedNodes; }
 
-		PlayerNode _currentPlayerNode;
-		int _currentBodyID;
+        PlayerNode _currentPlayerNode;
+        int _currentBodyID;
 
         public void LateInit ()
         {
-			TaskRunner.Instance.Run(new TimedLoopActionEnumerator(Tick));
+            TaskRunner.Instance.Run(new TimedLoopActionEnumerator(Tick));
         }
 
         public void Add (INode obj)
@@ -60,7 +60,7 @@ namespace Engines.Client.Networking
             }
         }
 
-		/**
+        /**
 		 * Cycle through all mobile entities, skipping the one we control if any, 
 		 * and work out where they ought to be based on their provided position list.
 		 * Tidy up the list by removing entries which are too old to be useful as we go.
@@ -68,39 +68,39 @@ namespace Engines.Client.Networking
 		 */
         void Tick (float deltaTime)
         {
-			foreach (NetworkMobNode node in nodesDB.QueryNodes<NetworkMobNode>())
-			{
-				if (_currentPlayerNode != null && _currentBodyID == node.ID) { continue; }
+            foreach (NetworkMobNode node in nodesDB.QueryNodes<NetworkMobNode>())
+            {
+                if (_currentPlayerNode != null && _currentBodyID == node.ID) { continue; }
 
-				TimestampedList<Position> positions = node.networkPositionComponent.positions;
+                TimestampedList<Position> positions = node.networkPositionComponent.positions;
 
-				// Do nothing if we don't have enough information to work with.
-				// This should only really be the case for things which haven't moved since they were spawned.
-				if (positions.Count < 2)
-				{
-					continue;
-				}
+                // Do nothing if we don't have enough information to work with.
+                // This should only really be the case for things which haven't moved since they were spawned.
+                if (positions.Count < 2)
+                {
+                    continue;
+                }
 
-				// Clean up the list, throwing away entries earlier than the one immediately before now.
-				positions.RemoveOutdatedTimestamps(SpectreClient.serverTime);
+                // Clean up the list, throwing away entries earlier than the one immediately before now.
+                positions.RemoveOutdatedTimestamps(SpectreClient.serverTime);
 
-				// Seek through our position list for a position with a timestamp after now.
-				int nextPositionIndex = positions.GetIndexAfterTimestamp(SpectreClient.serverTime);
+                // Seek through our position list for a position with a timestamp after now.
+                int nextPositionIndex = positions.GetIndexAfterTimestamp(SpectreClient.serverTime);
 
-				// If our next position is not the second entry then after cleanup we don't have enough
-				// to work with - either we have no previous entry or no next entry.
-				if (nextPositionIndex != 1)
-				{
-					continue;
-				}
+                // If our next position is not the second entry then after cleanup we don't have enough
+                // to work with - either we have no previous entry or no next entry.
+                if (nextPositionIndex != 1)
+                {
+                    continue;
+                }
 
-				// Finally we're ready to work. Interpolate the object between the next and previous locations
-				// based on timestamps and the current server time.
-				Position prevPosition = positions.GetByIndex(0);
-				Position nextPosition = positions.GetByIndex(1);
-				double t = (SpectreClient.serverTime - prevPosition.timestamp) / (nextPosition.timestamp - prevPosition.timestamp);
-				node.networkPositionComponent.transform.position = Vector2.Lerp(prevPosition.position, nextPosition.position, (float)t);
-			}
+                // Finally we're ready to work. Interpolate the object between the next and previous locations
+                // based on timestamps and the current server time.
+                Position prevPosition = positions.GetByIndex(0);
+                Position nextPosition = positions.GetByIndex(1);
+                double t = (SpectreClient.serverTime - prevPosition.timestamp) / (nextPosition.timestamp - prevPosition.timestamp);
+                node.networkPositionComponent.transform.position = Vector2.Lerp(prevPosition.position, nextPosition.position, (float)t);
+            }
         }
 
         void CurrentBodyChanged (int ID, GameObject newBody)

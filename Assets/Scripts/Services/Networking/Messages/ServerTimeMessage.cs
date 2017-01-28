@@ -7,9 +7,10 @@ namespace Services.Networking.Messages
     {
         public double timestamp;
 
-        public ServerTimeMessage () {
-			timestamp = Network.time;
-		}
+        public ServerTimeMessage ()
+        {
+            timestamp = Network.time;
+        }
 
         public ServerTimeMessage (double timestamp)
         {

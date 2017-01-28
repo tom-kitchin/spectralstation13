@@ -8,10 +8,11 @@ namespace Services.Networking
      */
     public static class SpectreConnectionConfig
     {
-		public enum Channels {
-			ReliableSequenced = 0,
-			Unreliable = 1
-		}
+        public enum Channels
+        {
+            ReliableSequenced = 0,
+            Unreliable = 1
+        }
 
         public static ConnectionConfig connectionConfig {
             get {
@@ -27,19 +28,19 @@ namespace Services.Networking
         }
         static ConnectionConfig _connectionConfig;
 
-		public static float heartBeat = 0.05f;
+        public static float heartBeat = 0.05f;
         public static WaitForSecondsEnumerator heartbeatEnumerator {
             get {
                 if (_heartbeatEnumerator == null)
                 {
-					_heartbeatEnumerator = new WaitForSecondsEnumerator(heartBeat);
+                    _heartbeatEnumerator = new WaitForSecondsEnumerator(heartBeat);
                 }
                 return _heartbeatEnumerator;
             }
         }
         static WaitForSecondsEnumerator _heartbeatEnumerator;
 
-		// How far behind server-canon we run the clients, in seconds. Helps keep things smooth.
-		public static double clientDelay = 0.1d;
+        // How far behind server-canon we run the clients, in seconds. Helps keep things smooth.
+        public static double clientDelay = 0.1d;
     }
 }

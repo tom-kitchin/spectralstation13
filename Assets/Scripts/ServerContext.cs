@@ -46,14 +46,14 @@ public class Server : ICompositionRoot
         _factory = new NetworkGameObjectFromConfigFactory(_config);
         _playerPrefab = Resources.Load<GameObject>("Prefabs/PlayerManager");
 
-		// Start engines.
-		AddEngine(new TimeSyncEngine());
-		AddEngine(new NPCPositionUpdateEngine());
+        // Start engines.
+        AddEngine(new TimeSyncEngine());
+        AddEngine(new NPCPositionUpdateEngine());
         AddEngine(new MovementEngine());
-        
+
         if (_onSetupComplete != null) { _onSetupComplete(); }
     }
-    
+
     /**
      * Get this party started. As it were. SpectreServer does all the heavy lifting.
      */
@@ -85,7 +85,7 @@ public class Server : ICompositionRoot
     GameObject ServerCreatePlayer (NetworkConnection conn, UnityEngine.Networking.NetworkSystem.AddPlayerMessage message)
     {
         Debug.Log("ServerContext:ServerCreatePlayer");
-        
+
         GameObject player = _factory.Build(_playerPrefab);
         PlayerManager manager = player.GetComponent<PlayerManager>();
         manager.connection = conn;

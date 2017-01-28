@@ -52,14 +52,14 @@ namespace Services.Networking
             NetworkServer.Spawn(go);
         }
 
-		public static void SyncTimeToAll ()
-		{
-			NetworkServer.SendByChannelToAll(
-				SpectreMsgType.SyncServerTime,
-				new ServerTimeMessage(),
-				(int)SpectreConnectionConfig.Channels.Unreliable
-			);
-		}
+        public static void SyncTimeToAll ()
+        {
+            NetworkServer.SendByChannelToAll(
+                SpectreMsgType.SyncServerTime,
+                new ServerTimeMessage(),
+                (int)SpectreConnectionConfig.Channels.Unreliable
+            );
+        }
 
         static void ConfigureServer ()
         {
@@ -81,7 +81,7 @@ namespace Services.Networking
             NetworkServer.RegisterHandler(SpectreMsgType.RequestConfigChecksum, OnRequestConfigChecksum);
             NetworkServer.RegisterHandler(SpectreMsgType.RequestConfigData, OnRequestConfigData);
         }
-        
+
         static void SendBytesReliably (byte[] message, short msgType, NetworkConnection conn)
         {
             NetworkWriter writer = new NetworkWriter();
@@ -102,18 +102,18 @@ namespace Services.Networking
             conn.Send(finishedMsgType, new LargeDataInfoMessage(packets[0].totalPackets, packets[0].totalSize));
         }
 
-		static void PrepareConfigForTransmission()
-		{
-			if (_serializer == null)
-			{
-				throw new NullReferenceException("Must set a serializer for config transmission handling.");
-			}
+        static void PrepareConfigForTransmission ()
+        {
+            if (_serializer == null)
+            {
+                throw new NullReferenceException("Must set a serializer for config transmission handling.");
+            }
 
-			_serializedConfig = _serializer.Serialize();
+            _serializedConfig = _serializer.Serialize();
 
-			SHA256 checksumHasher = SHA256Managed.Create();
-			_configChecksum = checksumHasher.ComputeHash(_serializedConfig);
-		}
+            SHA256 checksumHasher = SHA256Managed.Create();
+            _configChecksum = checksumHasher.ComputeHash(_serializedConfig);
+        }
 
         /* SERVER MESSAGE HANDLERS */
 
@@ -123,13 +123,13 @@ namespace Services.Networking
 
             if (onServerConnect != null) { onServerConnect(netMsg); }
 
-			netMsg.conn.Send(SpectreMsgType.SyncServerTime, new ServerTimeMessage());
+            netMsg.conn.Send(SpectreMsgType.SyncServerTime, new ServerTimeMessage());
         }
 
         static void OnServerDisconnect (NetworkMessage netMsg)
         {
             Debug.Log("SpectreServer:OnServerDisconnect");
-            
+
             if (onServerDisconnect != null) { onServerDisconnect(netMsg); }
 
             NetworkServer.DestroyPlayersForConnection(netMsg.conn);
@@ -138,7 +138,7 @@ namespace Services.Networking
         static void OnServerReady (NetworkMessage netMsg)
         {
             Debug.Log("SpectreServer:OnServerReady");
-            
+
             if (onServerReady != null) { onServerReady(netMsg); }
 
             NetworkServer.SetClientReady(netMsg.conn);
@@ -216,7 +216,7 @@ namespace Services.Networking
             Debug.Log("SpectreServer:OnRequestConfigData");
 
             if (onRequestConfigData != null) { onRequestConfigData(netMsg); }
-            
+
             if (_configChecksum == null || _serializedConfig == null)
             {
                 PrepareConfigForTransmission();

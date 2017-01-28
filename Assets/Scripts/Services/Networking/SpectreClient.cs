@@ -26,15 +26,13 @@ namespace Services.Networking
         public static event OnMessageHandler onConfigDataStart;
         public static event OnMessageHandler onConfigDataPacket;
         public static event OnMessageHandler onConfigDataFinished;
-		public static event OnMessageHandler onSyncServerTime;
+        public static event OnMessageHandler onSyncServerTime;
 
-		public static double serverTime
-		{
-			get
-			{
-				return Network.time - _serverTimeDifference;
-			}
-		}
+        public static double serverTime {
+            get {
+                return Network.time - _serverTimeDifference;
+            }
+        }
 
         static byte[] _checksum;
         static LargeDataPacketMessage[] _configLoadInProgressCollection;
@@ -48,7 +46,7 @@ namespace Services.Networking
                 return _filesystemHelper;
             }
         }
-		static double _serverTimeDifference;
+        static double _serverTimeDifference;
 
         /**
          * Let's get this party started.
@@ -89,7 +87,7 @@ namespace Services.Networking
             networkClient.RegisterHandler(SpectreMsgType.ConfigDataStart, OnConfigDataStart);
             networkClient.RegisterHandler(SpectreMsgType.ConfigDataPacket, OnConfigDataPacket);
             networkClient.RegisterHandler(SpectreMsgType.ConfigDataFinished, OnConfigDataFinished);
-			networkClient.RegisterHandler(SpectreMsgType.SyncServerTime, OnSyncServerTime);
+            networkClient.RegisterHandler(SpectreMsgType.SyncServerTime, OnSyncServerTime);
         }
 
 
@@ -321,16 +319,16 @@ namespace Services.Networking
             return;
         }
 
-		static void OnSyncServerTime(NetworkMessage netMsg)
-		{
-			Debug.Log("SpectreClient:OnSyncServerTime");
+        static void OnSyncServerTime (NetworkMessage netMsg)
+        {
+            Debug.Log("SpectreClient:OnSyncServerTime");
 
-			if (onSyncServerTime != null) { onSyncServerTime(netMsg); }
+            if (onSyncServerTime != null) { onSyncServerTime(netMsg); }
 
-			ServerTimeMessage message = netMsg.ReadMessage<ServerTimeMessage>();
-			double latency = networkClient.GetRTT() / 1000d; // ms to s
-			_serverTimeDifference = Network.time - message.timestamp - latency;
-		}
+            ServerTimeMessage message = netMsg.ReadMessage<ServerTimeMessage>();
+            double latency = networkClient.GetRTT() / 1000d; // ms to s
+            _serverTimeDifference = Network.time - message.timestamp - latency;
+        }
     }
 
     public delegate GameObject StartClientHandler (NetworkClient client);

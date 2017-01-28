@@ -67,11 +67,11 @@ public class Client : ICompositionRoot
         _factory = new ClientGameObjectFromConfigFactory(_config);
         ConfigFactorySpawnManager.Initialize(_factory, _entityFactory, _config);
 
-		// Start engines.
-		AddEngine(new NPCPositionReplayEngine());
+        // Start engines.
+        AddEngine(new NPCPositionReplayEngine());
         AddEngine(new MovementControlEngine());
         AddEngine(new MovementEngine());
-        
+
         if (_onSetupComplete != null) { _onSetupComplete(); }
 
         // Tell the server we're ready to proceed.
@@ -91,7 +91,7 @@ public class Client : ICompositionRoot
             (engine as ILateInitEngine).LateInit();
         }
     }
-    
+
     void ICompositionRoot.OnContextCreated (UnityContext contextHolder) { }
 
     void ICompositionRoot.OnContextInitialized () { }
